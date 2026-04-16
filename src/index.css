@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+    /* Cores */
+    --color-primary: #4237E0;
+    --color-secondary: #1D3D94;
+    --color-tertiary: #5A9AE7;
+    --color-success: #34C759;
+    --color-warning: #ECBD02;
+    --color-danger: #FF0202;
+    --color-gradient: linear-gradient(#2D8FFF, #0634EB);
+    --color-footer: #0E0D19;
+    
+
+    /* Fontes */
+    --font-title: "Oswald";
+    --font-text: "Roboto";
+}
+
+:root {
+  --gradient-primary: linear-gradient(to right, #2D8FFF, #0634EB);
+}
+
+/* Gradiente */
+@layer utilities {
+  .bg-gradient {
+    background: var(--gradient-primary);
+  }
+}
