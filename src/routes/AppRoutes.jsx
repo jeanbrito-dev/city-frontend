@@ -1,4 +1,7 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route } from "react-router-dom";
+
+import MainLayout from "../components/layout/MainLayout";
+import AuthLayout from "../components/layout/AuthLayout";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -12,14 +15,22 @@ import NotFound from "../pages/NotFound";
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route index element={<Home />} />
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/map" element={<Map />} />
-      <Route path="/report" element={<Report />} />
-      <Route path="/occurrence/:id" element={<OccurrenceDetails />} />
+      {/* ROTAS COM LAYOUT PRINCIPAL */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/mapa" element={<Map />} />
+        <Route path="/relatar" element={<Report />} />
+        <Route path="/ocorrencia/:id" element={<OccurrenceDetails />} />
+      </Route>
+
+      {/* ROTAS DE AUTENTICAÇÃO */}
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Register />} />
+      </Route>
+
+      {/* ROTA FALLBACK */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
