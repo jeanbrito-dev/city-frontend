@@ -154,7 +154,7 @@ export default function Dashboard() {
               </button>
 
               {open && (
-                <div className="absolute mt-1 w-full bg-white rounded-[8px] shadow z-10">
+                <div className="absolute mt-1 w-full bg-white rounded-lg shadow z-10">
                   {categorias.map((cat) => (
                     <div
                       key={cat}
