@@ -1,5 +1,178 @@
-export default function Report() {
-    return (
-        <h1>Hello world</h1>
-    )
+import {
+  AlertTriangle,
+  MapPin,
+  Image as ImageIcon,
+  Send
+} from "lucide-react";
+import { useState, useRef } from "react";
+
+export default function RelatarOcorrencia() {
+
+  const [categoria, setCategoria] = useState("Ocorrência");
+  const [open, setOpen] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef();
+
+  const categorias = [
+    "Ocorrência",
+    "Evento",
+    "Infraestrutura",
+    "Segurança"
+  ];
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (file) setFileName(file.name);
+  };
+
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center p-4 md:p-8"
+      style={{
+        backgroundColor: "#F3F3F3",
+        fontFamily: "var(--font-text)",
+      }}
+    >
+      {/* HEADER */}
+      <div className="text-center mb-6">
+        <h1
+          className="text-[22px] md:text-[32px] font-semibold"
+          style={{ fontFamily: "var(--font-title)" }}
+        >
+          Relatar ocorrência
+        </h1>
+
+        <p className="text-[12px] md:text-[14px] text-gray-500 mt-1">
+          Preencha os dados abaixo para compartilhar com a comunidade.
+        </p>
+      </div>
+
+      {/* CARD */}
+      <div className="w-full max-w-md md:max-w-2xl bg-[#EDEDED] rounded-[16px] p-4 md:p-6 shadow-sm">
+
+        {/* CATEGORIA */}
+        <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
+          Categoria
+        </label>
+
+        <div className="relative mb-4">
+          <div
+            onClick={() => setOpen(!open)}
+            className="bg-white rounded-[10px] px-3 py-2 flex justify-between items-center cursor-pointer"
+          >
+            <span className="text-[12px] md:text-[14px] text-gray-600">
+              {categoria}
+            </span>
+            <span>▾</span>
+          </div>
+
+          {open && (
+            <div className="absolute w-full bg-white rounded-[10px] mt-1 shadow-md z-10">
+              {categorias.map((cat) => (
+                <div
+                  key={cat}
+                  onClick={() => {
+                    setCategoria(cat);
+                    setOpen(false);
+                  }}
+                  className="px-3 py-2 text-[12px] md:text-[14px] hover:bg-gray-100 cursor-pointer"
+                >
+                  {cat}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* TITULO */}
+        <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
+          Título do Relato
+        </label>
+
+        <input
+          placeholder="Ex: Buraco na Avenida da Praia"
+          className="w-full bg-white rounded-[10px] px-3 py-2 text-[12px] md:text-[14px] outline-none border border-blue-500 mb-4"
+        />
+
+        {/* DESCRIÇÃO */}
+        <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
+          Descrição Detalhada
+        </label>
+
+        <textarea
+          placeholder="Descreva o que aconteceu..."
+          className="w-full bg-white rounded-[10px] px-3 py-2 text-[12px] md:text-[14px] outline-none mb-4 h-24 resize-none"
+        />
+
+        {/* LOCAL */}
+        <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
+          Localização
+        </label>
+
+        <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px] md:text-[14px] mb-4">
+          <MapPin size={14} />
+          Rua, Bairro ou Ponto de Referência
+        </div>
+
+        {/* MOBILE → URL */}
+        <div className="block md:hidden mb-4">
+          <label className="text-[13px] font-medium mb-1 block">
+            URL da imagem <span className="text-gray-400">(Opcional)</span>
+          </label>
+
+          <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px]">
+            <ImageIcon size={14} />
+            <input
+              placeholder="https://exemplo.com/imagem.jpg"
+              className="flex-1 outline-none bg-transparent"
+            />
+          </div>
+
+          <p className="text-[10px] text-gray-400 mt-1">
+            Cole um link direto para uma imagem
+          </p>
+        </div>
+
+        {/* DESKTOP → FILE */}
+        <div className="hidden md:block mb-4">
+          <label className="text-[15px] font-medium mb-1 block">
+            Carregar imagem <span className="text-gray-400">(Opcional)</span>
+          </label>
+
+          <button
+            onClick={() => fileInputRef.current.click()}
+            className="bg-white rounded-[10px] px-3 py-2 text-[14px] flex items-center gap-2"
+          >
+            <ImageIcon size={14} />
+            {fileName || "Escolher arquivo"}
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFile}
+            className="hidden"
+          />
+        </div>
+
+        {/* AVISO */}
+        <div className="bg-[#FCE8D5] border border-[#F5CFA0] rounded-[10px] p-3 flex gap-2 mb-5">
+          <AlertTriangle size={16} className="text-[#B26A00]" />
+          <p className="text-[11px] md:text-[13px] text-[#8A4B00]">
+            Ao enviar, você confirma que as informações são verdadeiras.
+            Relatos falsos prejudicam a comunidade.
+          </p>
+        </div>
+
+        {/* BOTÃO */}
+        <div className="flex justify-center">
+          <button className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2">
+            Publicar Ocorrência
+            <Send size={16} />
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
 }
