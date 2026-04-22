@@ -1,7 +1,42 @@
-import { Link } from "react-router"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { register } from "../services/api";
 
 export default function Register() {
-    const inputStyle = "w-full mt-1 px-4 py-1.5 md:py-2 border border-gray-400 rounded-full outline-none"
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmar, setConfirmar] = useState("");
+  const navigate = useNavigate();
+
+  const inputStyle =
+    "w-full mt-1 px-4 py-1.5 md:py-2 border border-gray-400 rounded-full outline-none";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!nome || !email || !senha) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    if (senha !== confirmar) {
+      alert("Senhas não conferem");
+      return;
+    }
+
+    try {
+      const res = await register({ nome, email, senha });
+
+      if (res.user) {
+        navigate("/login");
+      } else {
+        alert("Erro ao cadastrar");
+      }
+    } catch {
+      alert("Erro no cadastro");
+    }
+  };
 
   return (
     <div className="w-full max-w-sm font-text">
@@ -13,12 +48,14 @@ export default function Register() {
         Faça parte do portal do cidadão de Caraguatatuba
       </p>
 
-      <form className="flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="text-left">
           <label className="text-sm">Nome completo</label>
           <input
             type="text"
             placeholder="Seu nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
             className={inputStyle}
           />
         </div>
@@ -28,15 +65,19 @@ export default function Register() {
           <input
             type="email"
             placeholder="seu@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className={inputStyle}
           />
         </div>
 
-        <div className="text-left"> 
+        <div className="text-left">
           <label className="text-sm">Senha</label>
           <input
             type="password"
             placeholder="Mínimo 6 caracteres"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
             className={inputStyle}
           />
         </div>
@@ -46,6 +87,8 @@ export default function Register() {
           <input
             type="password"
             placeholder="Digite a senha novamente"
+            value={confirmar}
+            onChange={(e) => setConfirmar(e.target.value)}
             className={inputStyle}
           />
         </div>

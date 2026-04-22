@@ -8,8 +8,8 @@ import { getOccurrences } from "../services/api";
 import { Link } from "react-router";
 
 export default function Dashboard() {
-  const [searchParams] = useSearchParams();
-  const nome = searchParams.get("nome") || "Usuário";
+  const user = JSON.parse(localStorage.getItem("user"));
+  const nome = user?.nome || "Usuário";
 
   const [data, setData] = useState([]);
   const [formatted, setFormatted] = useState([]);
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
           try {
             const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`
+              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`,
             );
             const geo = await res.json();
             const addr = geo.address || {};
@@ -75,7 +75,7 @@ export default function Dashboard() {
             likes: item.id?.length || 0,
             comentarios: item.id?.length % 5 || 0,
           };
-        })
+        }),
       );
 
       setFormatted(result);
@@ -126,9 +126,7 @@ export default function Dashboard() {
       </div>
 
       <section className="max-w-5xl mx-auto">
-        <h2 className="text-[18px] mb-4 font-semibold">
-          Minhas denúncias
-        </h2>
+        <h2 className="text-[18px] mb-4 font-semibold">Minhas denúncias</h2>
 
         {/* BUSCA + FILTRO */}
         <div className="bg-[#EDEDED] rounded-xl p-3 mb-5">

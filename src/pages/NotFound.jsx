@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 
 export default function NotFound() {
+  const user = JSON.parse(localStorage.getItem("user"));
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F3F3F3] px-4">
       
@@ -32,7 +34,7 @@ export default function NotFound() {
         <div className="mt-6 flex flex-col gap-2">
           
           <Link
-            to="/"
+            to={user ? "/dashboard" : "/"}
             className="bg-gradient text-white py-2 rounded-[10px] text-sm font-medium"
           >
             Voltar para o início
