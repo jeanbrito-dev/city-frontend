@@ -82,7 +82,7 @@ export default function Header() {
         className={`md:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-96 mt-4" : "max-h-0"}`}
       >
         <nav className="flex flex-col gap-4">
-          <NavLink to={user ? "/dashboard" : "/"} className={navLinkClass}>
+          <NavLink to={user ? "/dashboard" : "/"} className={navLinkMobile}>
             {user ? "Dashboard" : "Home"}
           </NavLink>
           <NavLink
