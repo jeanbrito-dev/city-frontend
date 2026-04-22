@@ -1,28 +1,98 @@
-import {
-  AlertTriangle,
-  MapPin,
-  Image as ImageIcon,
-  Send
-} from "lucide-react";
+import { AlertTriangle, MapPin, Image as ImageIcon, Send } from "lucide-react";
 import { useState, useRef } from "react";
+import { createOccurrence } from "../services/api";
 
 export default function RelatarOcorrencia() {
-
   const [categoria, setCategoria] = useState("Ocorrência");
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState("");
   const fileInputRef = useRef();
 
+  // novos states
+  const [titulo, setTitulo] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [local, setLocal] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const categorias = [
     "Ocorrência",
     "Evento",
     "Infraestrutura",
-    "Segurança"
+    "Segurança",
+    "Limpeza Urbana",
+    "Iluminação Pública",
+    "Trânsito",
+    "Saúde Pública",
+    "Meio Ambiente",
+    "Sugestão",
   ];
 
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (file) setFileName(file.name);
+  };
+
+  const getCoordinates = async (address) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
+      );
+
+      const data = await res.json();
+
+      if (!data || data.length === 0) return null;
+
+      return {
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  // envio para API
+  const handleSubmit = async () => {
+    if (!titulo || !descricao || !local) {
+      alert("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // 🔥 converte endereço → coordenadas
+      const coords = await getCoordinates(local);
+
+      // 🔥 valida endereço
+      if (!coords) {
+        alert("Endereço não encontrado. Seja mais específico.");
+        return;
+      }
+
+      await createOccurrence({
+        titulo,
+        descricao,
+        categoria,
+        status: "pendente",
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+
+      alert("Ocorrência criada!");
+
+      // reset
+      setTitulo("");
+      setDescricao("");
+      setLocal("");
+      setCategoria("Ocorrência");
+      setFileName("");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,7 +119,6 @@ export default function RelatarOcorrencia() {
 
       {/* CARD */}
       <div className="w-full max-w-md md:max-w-2xl bg-[#EDEDED] rounded-[16px] p-4 md:p-6 shadow-sm">
-
         {/* CATEGORIA */}
         <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
           Categoria
@@ -90,6 +159,8 @@ export default function RelatarOcorrencia() {
         </label>
 
         <input
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
           placeholder="Ex: Buraco na Avenida da Praia"
           className="w-full bg-white rounded-[10px] px-3 py-2 text-[12px] md:text-[14px] outline-none border border-blue-500 mb-4"
         />
@@ -100,6 +171,8 @@ export default function RelatarOcorrencia() {
         </label>
 
         <textarea
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
           placeholder="Descreva o que aconteceu..."
           className="w-full bg-white rounded-[10px] px-3 py-2 text-[12px] md:text-[14px] outline-none mb-4 h-24 resize-none"
         />
@@ -111,7 +184,12 @@ export default function RelatarOcorrencia() {
 
         <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px] md:text-[14px] mb-4">
           <MapPin size={14} />
-          Rua, Bairro ou Ponto de Referência
+          <input
+            value={local}
+            onChange={(e) => setLocal(e.target.value)}
+            placeholder="Rua, Bairro ou Ponto de Referência"
+            className="flex-1 outline-none bg-transparent text-gray-600"
+          />
         </div>
 
         {/* MOBILE → URL */}
@@ -159,19 +237,22 @@ export default function RelatarOcorrencia() {
         <div className="bg-[#FCE8D5] border border-[#F5CFA0] rounded-[10px] p-3 flex gap-2 mb-5">
           <AlertTriangle size={16} className="text-[#B26A00]" />
           <p className="text-[11px] md:text-[13px] text-[#8A4B00]">
-            Ao enviar, você confirma que as informações são verdadeiras.
-            Relatos falsos prejudicam a comunidade.
+            Ao enviar, você confirma que as informações são verdadeiras. Relatos
+            falsos prejudicam a comunidade.
           </p>
         </div>
 
         {/* BOTÃO */}
         <div className="flex justify-center">
-          <button className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2">
-            Publicar Ocorrência
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2"
+          >
+            {loading ? "Enviando..." : "Publicar Ocorrência"}
             <Send size={16} />
           </button>
         </div>
-
       </div>
     </div>
   );
