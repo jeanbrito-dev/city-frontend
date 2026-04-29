@@ -61,10 +61,10 @@ export default function RelatarOcorrencia() {
     try {
       setLoading(true);
 
-      // 🔥 converte endereço → coordenadas
+      // converte endereço → coordenadas
       const coords = await getCoordinates(local);
 
-      // 🔥 valida endereço
+      // valida endereço
       if (!coords) {
         alert("Endereço não encontrado. Seja mais específico.");
         return;

@@ -25,6 +25,17 @@ export const deleteOccurrence = async (id) => {
   return res.json();
 };
 
+export const updateOccurrence = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/occurrences/${id}`, {
+    method: "PUT", // ou PATCH se preferir parcial
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error("Erro ao atualizar ocorrência");
+  return res.json();
+};
+
 // AUTH
 export const login = async (data) => {
   const res = await fetch(`${BASE_URL}/auth/login`, {
