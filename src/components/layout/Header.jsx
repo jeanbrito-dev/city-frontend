@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
-  const navLinkClass = "hover:text-primary transition";
-  const navLinkMobile = "border-b-1 border-gray-300 pb-2 text-center";
+  const navLinkClass = ({ isActive }) =>
+    `pb-1 transition ${isActive ? "border-b-2 border-primary" : "hover:text-primary"} ${isHome ? "lg:text-white lg:hover:text-white/80" : ""}`;
+  const navLinkMobile = ({ isActive }) =>
+    `border-b border-gray-300 pb-2 text-center transition ${isActive ? "text-primary font-semibold" : ""}`;
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -15,13 +19,13 @@ export default function Header() {
   };
 
   return (
-    <header className="p-4 shadow-xl">
+    <header className={`p-4 z-50 ${isHome ? "shadow-xl bg-white lg:absolute lg:top-0 lg:left-0 lg:w-full lg:bg-black/20 lg:backdrop-blur-[6px] lg:shadow-none" : "shadow-xl bg-white"}`}>
       <div className="flex items-center justify-between">
         {/* Logo */}
-        <NavLink to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
+        <NavLink to={user ? "/dashboard" : "/"} className={`flex items-center gap-2 ${isHome ? "lg:text-white" : ""}`}>
           <img src="/logo.png" alt="Logo" className="size-10" />
           <span className="font-title text-xl">
-            Uni<span className="text-primary">city</span>
+            Uni<span className={isHome ? "text-primary lg:text-white" : "text-primary"}>city</span>
           </span>
         </NavLink>
 
@@ -57,7 +61,7 @@ export default function Header() {
             <>
               <NavLink
                 to="/login"
-                className="text-primary border border-gray-400 px-4 py-2 rounded-xl"
+                className={`px-4 py-2 rounded-xl ${isHome ? "lg:text-white lg:border-tertiary text-primary border border-gray-400" : "text-primary border border-gray-400"}`}
               >
                 Login
               </NavLink>

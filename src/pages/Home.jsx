@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import heroImage from "../assets/hero-desktop.jpeg";
 import sectionImageOne from "../assets/hero-mobile.jpeg";
 import sectionImageTwo from "../assets/hero-extra.jpeg";
@@ -72,7 +71,7 @@ function MobileHero() {
         </div>
       </div>
 
-      <div className="mt-8 px-4 flex flex-col gap-5">
+      <div className="mt-8 px-8 flex flex-col gap-5">
         <Link
           to="/mapa"
           className="flex min-h-15 items-center justify-center rounded-2xl bg-primary px-6 text-center font-text text-lg font-semibold text-white transition hover:opacity-95"
@@ -91,14 +90,6 @@ function MobileHero() {
 }
 
 function DesktopHero() {
-  const [offset, setOffset] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setOffset(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <div className="hidden lg:block">
       <div className="relative min-h-190 w-full overflow-hidden">
@@ -106,7 +97,6 @@ function DesktopHero() {
           src={heroImage}
           alt="Paisagem"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ transform: `translateY(${offset * 0.4}px)` }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,11,28,0.80)_0%,rgba(8,11,28,0.50)_38%,rgba(8,11,28,0.10)_100%)]" />
 
@@ -133,7 +123,7 @@ function DesktopHero() {
 
 function MobileCard({ title, description }) {
   return (
-    <article className="min-h-50 bg-[#F7F7F7] px-6 pt-18 pb-8 sm:px-8">
+    <article className="min-h-50 bg-[#F7F7F7] px-6 pt-18 pb-8 sm:px-8 rounded-[10px] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(66,55,224,0.12)] hover:scale-[1.02] hover:-translate-y-1 cursor-default">
       <h3 className="font-title text-2xl leading-[1.2]">{title}</h3>
       <p className="mt-4 font-text text-base leading-[1.65] text-[#2F2F2F]">
         {description}
@@ -189,7 +179,7 @@ export default function Home() {
       <DesktopHero />
 
       <section className="px-8 py-16 sm:px-10 lg:px-14.5 lg:pt-20 lg:pb-30">
-        <div className="mb-8 h-1 w-full bg-primary lg:hidden" />
+        <div className="mb-8 h-[3px] w-36 mx-auto bg-primary lg:hidden" />
 
         <div className="lg:hidden">
           <div className="text-center">
@@ -265,7 +255,7 @@ export default function Home() {
               {desktopCards.map((card) => (
                 <article
                   key={card.title}
-                  className="min-h-47.5 rounded-[10px] bg-[#F7F7F7] px-6.5 py-7"
+                  className="min-h-47.5 rounded-[10px] bg-[#F7F7F7] px-6.5 py-7 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(66,55,224,0.12)] hover:scale-[1.02] hover:-translate-y-1 cursor-default"
                 >
                   <h3 className="font-title text-2xl leading-[1.1]">
                     {card.title}
