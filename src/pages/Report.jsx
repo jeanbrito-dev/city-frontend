@@ -70,6 +70,8 @@ export default function RelatarOcorrencia() {
         return;
       }
 
+      const user = JSON.parse(localStorage.getItem("user"));
+
       await createOccurrence({
         titulo,
         descricao,
@@ -77,6 +79,7 @@ export default function RelatarOcorrencia() {
         status: "pendente",
         latitude: coords.latitude,
         longitude: coords.longitude,
+        autor: user?.nome || "Anônimo",
       });
 
       alert("Ocorrência criada!");

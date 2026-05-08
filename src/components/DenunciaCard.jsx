@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ThumbsUp,
   MessageCircle,
@@ -101,9 +102,12 @@ export default function DenunciaCard({ data }) {
             {data.comentarios}
           </span>
 
-          <span className="ml-auto text-gray-400 font-normal">
+          <Link
+            to={`/ocorrencia/${data.id}`}
+            className="ml-auto text-gray-400 font-normal hover:text-primary transition-colors"
+          >
             Ver detalhes
-          </span>
+          </Link>
 
           <Pencil
             size={14}
