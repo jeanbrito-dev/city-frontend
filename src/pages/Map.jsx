@@ -8,7 +8,7 @@ import { Filter, Search } from "lucide-react";
 import { getOccurrences } from "../services/api";
 import DenunciaCard from "../components/DenunciaCard";
 
-const getMarkerIcon = (categoria) => {
+export const getMarkerIcon = (categoria) => {
   let color = "#888888"; // Outros
   if (categoria === "Infraestrutura") color = "#4237E0"; // blue (primary)
   else if (categoria === "Segurança") color = "#FF0202"; // red
