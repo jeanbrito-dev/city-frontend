@@ -54,7 +54,7 @@ export default function MapPopup({ occ }) {
         {/* NavLink button */}
         <NavLink
           to={`/ocorrencia/${occ.id}`}
-          className="flex items-center justify-center gap-1.5 w-full py-2 bg-gradient text-white rounded-lg text-xs font-semibold no-underline cursor-pointer transition-opacity hover:opacity-85 tracking-wide"
+          className="flex items-center justify-center gap-1.5 w-full py-2 bg-gradient !text-white rounded-lg text-xs font-semibold !no-underline cursor-pointer transition-opacity hover:opacity-85 tracking-wide"
         >
           Ver detalhes
           <ArrowRight size={13} />
