@@ -7,6 +7,7 @@ import L from "leaflet";
 import { Filter, Search } from "lucide-react";
 import { getOccurrences } from "../services/api";
 import DenunciaCard from "../components/DenunciaCard";
+import MapPopup from "../components/MapPopup";
 
 export const getMarkerIcon = (categoria) => {
   let color = "#888888"; // Outros
@@ -120,12 +121,8 @@ export default function Map() {
                 position={[Number(occ.latitude), Number(occ.longitude)]}
                 icon={getMarkerIcon(occ.categoria)}
               >
-                <Popup>
-                  <strong>{occ.titulo}</strong>
-                  <p className="text-xs text-gray-600 mt-1">{occ.descricao}</p>
-                  <span className="text-[10px] font-bold text-primary mt-2 block">
-                    {occ.categoria} - {occ.status}
-                  </span>
+                <Popup className="custom-popup" closeButton={true} maxWidth={280} minWidth={240}>
+                  <MapPopup occ={occ} />
                 </Popup>
               </Marker>
             ))}

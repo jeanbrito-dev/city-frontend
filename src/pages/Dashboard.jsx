@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import DenunciaCard from "../components/DenunciaCard";
+import MapPopup from "../components/MapPopup";
 import { getOccurrences } from "../services/api";
 import { getMarkerIcon } from "./Map";
 
@@ -131,12 +132,8 @@ export default function Dashboard() {
                   position={[Number(occ.latitude), Number(occ.longitude)]}
                   icon={getMarkerIcon(occ.categoria)}
                 >
-                  <Popup>
-                    <strong>{occ.titulo}</strong>
-                    <p className="text-xs text-gray-600 mt-1">{occ.descricao}</p>
-                    <span className="text-[10px] font-bold text-primary mt-2 block">
-                      {occ.categoria} - {occ.status}
-                    </span>
+                  <Popup className="custom-popup" closeButton={true} maxWidth={280} minWidth={240}>
+                    <MapPopup occ={occ} />
                   </Popup>
                 </Marker>
               ) : null
