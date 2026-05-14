@@ -100,13 +100,6 @@ export default function Header() {
 
           {user ? (
             <>
-              <NavLink
-                to="/minhas-denuncias"
-                onClick={() => setOpen(false)}
-                className={navLinkMobile}
-              >
-                Minhas denúncias
-              </NavLink>
               <button
                 onClick={handleLogout}
                 className="bg-danger text-white px-4 py-2 rounded-xl text-center"
