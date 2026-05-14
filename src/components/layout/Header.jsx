@@ -40,12 +40,6 @@ export default function Header() {
           <NavLink to="/mapa" className={navLinkClass}>
             Mapa
           </NavLink>
-
-          {user && (
-            <NavLink to="/minhas-denuncias" className={navLinkClass}>
-              Minhas denúncias
-            </NavLink>
-          )}
         </nav>
 
         {/* Ações desktop */}
