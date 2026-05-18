@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 
 export default function Header() {
@@ -13,9 +13,11 @@ export default function Header() {
   const navLinkMobile = ({ isActive }) =>
     `border-b border-gray-300 pb-2 text-center transition ${isActive ? "text-primary font-semibold" : ""}`;
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.reload();
+    navigate("/");
   };
 
   return (
@@ -40,12 +42,6 @@ export default function Header() {
           <NavLink to="/mapa" className={navLinkClass}>
             Mapa
           </NavLink>
-
-          {user && (
-            <NavLink to="/minhas-denuncias" className={navLinkClass}>
-              Minhas denúncias
-            </NavLink>
-          )}
         </nav>
 
         {/* Ações desktop */}
@@ -106,13 +102,6 @@ export default function Header() {
 
           {user ? (
             <>
-              <NavLink
-                to="/minhas-denuncias"
-                onClick={() => setOpen(false)}
-                className={navLinkMobile}
-              >
-                Minhas denúncias
-              </NavLink>
               <button
                 onClick={handleLogout}
                 className="bg-danger text-white px-4 py-2 rounded-xl text-center"

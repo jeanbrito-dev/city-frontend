@@ -16,7 +16,7 @@ export default function OccurrenceDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(67);
+  const [likesCount, setLikesCount] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
@@ -38,7 +38,7 @@ export default function OccurrenceDetails() {
         setLoading(true);
         const data = await getOccurrenceById(id);
         setOccurrence(data);
-        setLikesCount(data.likes || 67);
+        setLikesCount(data.likes || 0);
       } catch (err) {
         console.error(err);
         setError("Ocorrência não encontrada");
