@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Search, ChevronDown } from "lucide-react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
-import MapPage from "./Map";
 import DenunciaCard from "../components/DenunciaCard";
+import MapPopup from "../components/MapPopup";
 import { getOccurrences } from "../services/api";
-import { Link } from "react-router";
+import { getMarkerIcon } from "./Map";
 
 export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -111,19 +113,42 @@ export default function Dashboard() {
         Bem-vindo <span className="text-primary font-bold">{nome}</span>
       </h1>
 
-      {/* MAP */}
-      <div className="mb-6">
-        <MapPage />
-
-        <div className="flex justify-center md:justify-end mt-3">
+      {/* MAP WIDGET */}
+      <section className="max-w-5xl mx-auto mb-6">
+        <div className="h-[300px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200">
+          <MapContainer
+            center={[-23.6205, -45.4132]}
+            zoom={13}
+            className="h-full w-full z-0"
+          >
+            <TileLayer
+              attribution='&copy; OpenStreetMap contributors'
+              url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+            />
+            {formatted.map((occ) => (
+              occ.latitude && occ.longitude ? (
+                <Marker
+                  key={occ.id}
+                  position={[Number(occ.latitude), Number(occ.longitude)]}
+                  icon={getMarkerIcon(occ.categoria)}
+                >
+                  <Popup className="custom-popup" closeButton={true} maxWidth={280} minWidth={240}>
+                    <MapPopup occ={occ} />
+                  </Popup>
+                </Marker>
+              ) : null
+            ))}
+          </MapContainer>
+        </div>
+        <div className="flex justify-center md:justify-end mt-4">
           <Link
             to="/relatar"
-            className="bg-gradient text-white px-5 py-2 rounded-[10px] text-[14px] font-medium"
+            className="bg-[#2D8FFF] hover:bg-[#1a7ae6] transition-colors text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-sm"
           >
             + Registrar ocorrência
           </Link>
         </div>
-      </div>
+      </section>
 
       <section className="max-w-5xl mx-auto">
         <h2 className="text-[18px] mb-4 font-semibold">Minhas denúncias</h2>
