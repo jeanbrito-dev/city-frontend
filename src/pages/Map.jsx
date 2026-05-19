@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
+import { Search, ChevronDown } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import L from "leaflet";
-import { Filter, Search } from "lucide-react";
-import { getOccurrences } from "../services/api";
 import DenunciaCard from "../components/DenunciaCard";
+import { getOccurrences } from "../services/api";
 import MapPopup from "../components/MapPopup";
 
 export const getMarkerIcon = (categoria) => {
@@ -29,204 +28,265 @@ export const getMarkerIcon = (categoria) => {
   });
 };
 
-export default function Map() {
-  const [occurrences, setOccurrences] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Todas as Categorias");
-  
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [visibleCount, setVisibleCount] = useState(window.innerWidth < 768 ? 3 : 6);
+export default function Dashboard() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const nome = user?.nome || "Usuário";
 
+  const [data, setData] = useState([]);
+  const [formatted, setFormatted] = useState([]);
+  const [search, setSearch] = useState("");
+
+  const [showAll, setShowAll] = useState(false);
+
+  // filtro categoria
+  const [categoria, setCategoria] = useState("Todas");
+  const [open, setOpen] = useState(false);
+
+  // pega dados do backend
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    getOccurrences().then(setData);
   }, []);
 
+  // helper pra limitar texto
+  const formatEndereco = (text) => {
+    if (!text) return "Local não encontrado";
+    return text.length > 35 ? text.slice(0, 35) + "..." : text;
+  };
+
+  // formatação + reverse geocode
   useEffect(() => {
-    getOccurrences().then(setOccurrences);
-  }, []);
+    const formatData = async () => {
+      const result = await Promise.all(
+        data.map(async (item) => {
+          // evita request desnecessária
+          if (!item.latitude || !item.longitude) {
+            return {
+              ...item,
+              local: item.categoria || "Não informado",
+              data: item.createdAt
+                ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                : "Agora",
+              likes: item.id?.length || 0,
+              comentarios: item.id?.length % 5 || 0,
+            };
+          }
 
-  const filteredOccurrences = occurrences.filter((occ) => {
-    const matchesSearch =
-      occ.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      occ.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Todas as Categorias" ||
-      occ.categoria === selectedCategory;
+          let endereco = "Local não encontrado";
 
-    return matchesSearch && matchesCategory;
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`,
+            );
+            const geo = await res.json();
+            const addr = geo.address || {};
+
+            endereco = [addr.road, addr.city || addr.town]
+              .filter(Boolean)
+              .join(", ");
+          } catch {
+            endereco = "Erro ao carregar";
+          }
+
+          return {
+            ...item,
+            local: formatEndereco(endereco),
+            data: item.createdAt
+              ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+              : "Agora",
+            likes: item.id?.length || 0,
+            comentarios: item.id?.length % 5 || 0,
+          };
+        }),
+      );
+
+      setFormatted(result);
+    };
+
+    if (data.length) formatData();
+  }, [data]);
+
+  // categorias dinâmicas
+  const categorias = [
+    "Todas",
+    ...new Set(formatted.map((i) => i.categoria).filter(Boolean)),
+  ];
+
+  // filtro
+  const filtered = formatted.filter((item) => {
+    const matchSearch = item.titulo
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchCategoria =
+      categoria === "Todas" || item.categoria === categoria;
+
+    return matchSearch && matchCategoria;
   });
 
-  const occurrencesToShow = filteredOccurrences.slice(0, visibleCount);
+  // limite de cards
+  const visibleItems = showAll ? filtered : filtered.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] px-4 py-8 md:px-8 lg:px-16 font-text text-[#1A1A1A]">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Header Section */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-6">
-          <div>
-            <h1 className="font-title text-[32px] md:text-[40px] font-bold leading-tight">
-              Mapa de <span className="text-primary">ocorrências</span>
-            </h1>
-            <p className="text-gray-500 mt-2 text-sm md:text-base font-medium">
-              Visualize todas as ocorrências reportadas em<br className="hidden md:block" /> Caraguatatuba
-            </p>
-          </div>
+    <div className="min-h-screen p-4 md:p-8 bg-[#F3F3F3] font-text">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-6">
+        <div>
+          <h1 className="font-title text-[32px] md:text-[40px] font-bold leading-tight">
+            Mapa de <span className="text-primary">ocorrências</span>
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm md:text-base font-medium">
+            Visualize todas as ocorrências reportadas em
+            <br className="hidden md:block" /> Caraguatatuba
+          </p>
+        </div>
 
-          {/* Legend */}
-          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm w-full lg:w-auto min-w-[300px]">
-            <p className="text-sm font-bold mb-3 text-gray-800">Legenda:</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6 text-xs text-gray-600 font-medium">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#4237E0]"></div>
-                <span>Infraestrutura</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#FF0202]"></div>
-                <span>Segurança</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#34C759]"></div>
-                <span>Limpeza</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#ECBD02]"></div>
-                <span>Trânsito</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#888888]"></div>
-                <span>Outros</span>
-              </div>
+        {/* Legend */}
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm w-full lg:w-auto min-w-[300px]">
+          <p className="text-sm font-bold mb-3 text-gray-800">Legenda:</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6 text-xs text-gray-600 font-medium">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#4237E0]"></div>
+              <span>Infraestrutura</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#FF0202]"></div>
+              <span>Segurança</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#34C759]"></div>
+              <span>Limpeza</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#ECBD02]"></div>
+              <span>Trânsito</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#888888]"></div>
+              <span>Outros</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Map */}
-        <div className="h-[400px] md:h-[500px] w-full rounded-2xl overflow-hidden shadow-sm mb-6 border border-gray-200">
+      {/* MAP WIDGET */}
+      <section className="max-w-5xl mx-auto mb-6">
+        <div className="h-[300px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200">
           <MapContainer
             center={[-23.6205, -45.4132]}
             zoom={13}
-            className="h-full w-full"
+            className="h-full w-full z-0"
           >
             <TileLayer
-              attribution='&copy; OpenStreetMap contributors'
+              attribution="&copy; OpenStreetMap contributors"
               url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
             />
-
-            {filteredOccurrences.map((occ) => (
-              <Marker
-                key={occ.id}
-                position={[Number(occ.latitude), Number(occ.longitude)]}
-                icon={getMarkerIcon(occ.categoria)}
-              >
-                <Popup className="custom-popup" closeButton={true} maxWidth={280} minWidth={240}>
-                  <MapPopup occ={occ} />
-                </Popup>
-              </Marker>
-            ))}
+            {formatted.map((occ) =>
+              occ.latitude && occ.longitude ? (
+                <Marker
+                  key={occ.id}
+                  position={[Number(occ.latitude), Number(occ.longitude)]}
+                  icon={getMarkerIcon(occ.categoria)}
+                >
+                  <Popup
+                    className="custom-popup"
+                    closeButton={true}
+                    maxWidth={280}
+                    minWidth={240}
+                  >
+                    <MapPopup occ={occ} />
+                  </Popup>
+                </Marker>
+              ) : null,
+            )}
           </MapContainer>
         </div>
-
-        {/* Map Actions / Info */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-14">
-          <p className="text-sm font-medium text-gray-800">
-            Total de ocorrências no mapa: <span className="text-[#5A9AE7] font-semibold">{filteredOccurrences.length}</span>
-          </p>
+        <div className="flex justify-center md:justify-end mt-4">
           <Link
             to="/relatar"
-            className="w-full md:w-auto bg-[#2D8FFF] hover:bg-[#1a7ae6] text-white px-6 py-3 rounded-xl font-semibold text-[15px] text-center transition-colors shadow-sm"
+            className="bg-[#2D8FFF] hover:bg-[#1a7ae6] transition-colors text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-sm"
           >
             + Registrar ocorrência
           </Link>
         </div>
+      </section>
 
-        {/* Filters */}
-        <div className="flex justify-center mb-16">
-          <div className="bg-white rounded-[20px] p-3 md:p-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex flex-col md:flex-row gap-4 w-full max-w-4xl border border-gray-100">
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search size={18} className="text-gray-400" />
-              </div>
+      <section className="max-w-5xl mx-auto">
+        <h2 className="text-[18px] mb-4 font-semibold">Minhas denúncias</h2>
+
+        {/* BUSCA + FILTRO */}
+        <div className="bg-[#EDEDED] rounded-xl p-3 mb-5">
+          <div className="flex flex-col md:flex-row gap-2 items-center">
+            <div className="bg-white rounded-lg px-3 py-2 flex items-center gap-2 w-full">
+              <Search size={14} className="text-gray-400" />
               <input
-                type="text"
-                placeholder="Buscar ocorrências (ex: buracos, alagamentos, etc.)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-11 pr-4 py-3.5 border-none bg-[#F4F6F8] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-colors text-gray-800 placeholder:text-gray-500"
+                placeholder="Buscar ocorrências..."
+                className="flex-1 text-[12px] outline-none bg-transparent"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            
-            <div className="relative w-full md:w-72 shrink-0">
-               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Filter size={18} className="text-gray-400" />
-              </div>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="appearance-none block w-full pl-11 pr-10 py-3.5 border-none bg-[#F4F6F8] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-colors text-gray-700 cursor-pointer"
+
+            {/* DROPDOWN */}
+            <div className="relative w-full md:w-auto">
+              <button
+                onClick={() => setOpen(!open)}
+                className="bg-white rounded-lg px-6 py-2 text-[12px] w-full flex justify-between items-center gap-2"
               >
-                <option value="Todas as Categorias">Todas as Categorias</option>
-                <option value="Infraestrutura">Infraestrutura</option>
-                <option value="Segurança">Segurança</option>
-                <option value="Limpeza">Limpeza</option>
-                <option value="Trânsito">Trânsito</option>
-                <option value="Outros">Outros</option>
-              </select>
-               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </div>
+                {categoria}
+                <ChevronDown size={14} />
+              </button>
+
+              {open && (
+                <div className="absolute mt-1 w-full bg-white rounded-lg shadow z-10">
+                  {categorias.map((cat) => (
+                    <div
+                      key={cat}
+                      onClick={() => {
+                        setCategoria(cat);
+                        setOpen(false);
+                      }}
+                      className="px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer"
+                    >
+                      {cat}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Recent Occurrences Grid */}
-        <div className="bg-[#F9F9F9] -mx-4 md:-mx-8 lg:-mx-16 px-4 md:px-8 lg:px-16 pt-12 pb-16">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-[28px] font-bold font-title text-gray-900">Destaques Recentes</h2>
-              <span className="text-[15px] font-medium text-gray-500">{filteredOccurrences.length} resultados</span>
-            </div>
+        {/* INFO */}
+        <div className="flex justify-between items-center md:flex-col md:gap-1 mb-4">
+          <p className="text-[14px]">Destaques Recentes</p>
 
-            {filteredOccurrences.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {occurrencesToShow.map((occ) => (
-                  <DenunciaCard 
-                    key={occ.id} 
-                    data={{
-                      id: occ.id,
-                      titulo: occ.titulo,
-                      descricao: occ.descricao,
-                      status: occ.status,
-                      local: "Endereço não informado", // Idealmente buscaria no banco ou map
-                      data: new Date(occ.createdAt).toLocaleDateString(),
-                      likes: Math.floor(Math.random() * 50) + 5, // mock
-                      comentarios: Math.floor(Math.random() * 20) // mock
-                    }} 
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-white rounded-[20px] shadow-sm border border-gray-100">
-                <p className="text-gray-500 text-lg">Nenhuma ocorrência encontrada com os filtros selecionados.</p>
-              </div>
-            )}
+          <span className="text-[11px] text-gray-400">
+            {showAll
+              ? "Todos os resultados"
+              : `Mostrando ${Math.min(3, filtered.length)}`}
+          </span>
+        </div>
 
-            {/* View More Button */}
-            {filteredOccurrences.length > visibleCount && (
-              <div className="w-full mt-8 flex justify-center">
-                <button 
-                  onClick={() => setVisibleCount(prev => prev + (isMobile ? 3 : 6))}
-                  className="text-gray-800 font-semibold text-[15px] hover:text-primary transition-colors"
-                >
-                  Ver mais
-                </button>
-              </div>
-            )}
+        {/* CARDS */}
+        <div className="bg-[#EDEDED] rounded-[14px] p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {visibleItems.map((item) => (
+              <DenunciaCard key={item.id} data={item} />
+            ))}
           </div>
         </div>
-      </div>
+
+        {/* BOTÃO */}
+        {filtered.length > 3 && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="bg-gradient text-white px-10 py-2 rounded-[10px] font-medium text-[14px]"
+            >
+              {showAll ? "Ver menos" : "Ver mais"}
+            </button>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
