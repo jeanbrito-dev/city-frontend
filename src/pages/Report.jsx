@@ -1,12 +1,15 @@
 import { AlertTriangle, MapPin, Image as ImageIcon, Send } from "lucide-react";
 import { useState, useRef } from "react";
 import { createOccurrence } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function RelatarOcorrencia() {
   const [categoria, setCategoria] = useState("Ocorrência");
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState("");
   const fileInputRef = useRef();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
 
   // novos states
   const [titulo, setTitulo] = useState("");
@@ -55,6 +58,12 @@ export default function RelatarOcorrencia() {
   const handleSubmit = async () => {
     if (!titulo || !descricao || !local) {
       alert("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    if (!user) {
+      alert("Faça login para relatar uma ocorrência");
+      navigate("/login");
       return;
     }
 
