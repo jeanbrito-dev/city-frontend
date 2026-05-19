@@ -18,6 +18,7 @@ export default function DenunciaCard({ data }) {
   const [titulo, setTitulo] = useState(data.titulo);
   const [descricao, setDescricao] = useState(data.descricao);
   const [status, setStatus] = useState(data.status);
+  const [categoria, setCategoria] = useState(data.categoria);
 
   const getStatusStyle = () => {
     switch (data.status) {
@@ -48,11 +49,13 @@ export default function DenunciaCard({ data }) {
         titulo,
         descricao,
         status,
+        categoria,
       });
 
       setOpen(false);
       window.location.reload();
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Erro ao atualizar");
     }
   };
@@ -77,9 +80,7 @@ export default function DenunciaCard({ data }) {
 
       {/* conteúdo */}
       <div className="p-3" style={{ fontFamily: "var(--font-text)" }}>
-        <p className="text-[12px] font-semibold text-gray-900">
-          {data.titulo}
-        </p>
+        <p className="text-[12px] font-semibold text-gray-900">{data.titulo}</p>
 
         <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-1">
           <MapPin size={12} />
@@ -118,49 +119,103 @@ export default function DenunciaCard({ data }) {
       </div>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-5 w-[300px]">
-            <h2 className="text-sm font-semibold mb-3">
-              Editar ocorrência
-            </h2>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-50 px-4">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            {/* HEADER */}
+            <div className="bg-gradient px-5 py-4 text-white">
+              <h2 className="text-lg font-semibold">Editar ocorrência</h2>
 
-            <input
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              className="w-full mb-2 px-2 py-1 border rounded text-xs"
-              placeholder="Título"
-            />
+              <p className="text-xs opacity-80 mt-1">
+                Atualize as informações da ocorrência
+              </p>
+            </div>
 
-            <textarea
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              className="w-full mb-2 px-2 py-1 border rounded text-xs"
-              placeholder="Descrição"
-            />
+            {/* CONTEÚDO */}
+            <div className="p-5 flex flex-col gap-4">
+              {/* TÍTULO */}
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">
+                  Título
+                </label>
 
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full mb-3 px-2 py-1 border rounded text-xs"
-            >
-              <option value="Pendente">Aberto</option>
-              <option value="Em análise">Em análise</option>
-              <option value="Resolvido">Resolvido</option>
-            </select>
+                <input
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  placeholder="Digite o título"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
 
-            <div className="flex justify-end gap-2">
+              {/* DESCRIÇÃO */}
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">
+                  Descrição
+                </label>
+
+                <textarea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  placeholder="Descreva a ocorrência"
+                  className="w-full h-28 resize-none rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+
+              {/* TIPO */}
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">
+                  Tipo da ocorrência
+                </label>
+
+                <select
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                >
+                  <option value="Ocorrência">Ocorrência</option>
+                  <option value="Evento">Evento</option>
+                  <option value="Infraestrutura">Infraestrutura</option>
+                  <option value="Segurança">Segurança</option>
+                  <option value="Limpeza Urbana">Limpeza Urbana</option>
+                  <option value="Iluminação Pública">Iluminação Pública</option>
+                  <option value="Trânsito">Trânsito</option>
+                  <option value="Saúde Pública">Saúde Pública</option>
+                  <option value="Meio Ambiente">Meio Ambiente</option>
+                  <option value="Sugestão">Sugestão</option>
+                </select>
+              </div>
+
+              {/* STATUS */}
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">
+                  Status
+                </label>
+
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                >
+                  <option value="Pendente">Pendente</option>
+                  <option value="Em análise">Em análise</option>
+                  <option value="Resolvido">Resolvido</option>
+                </select>
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="flex justify-end gap-3 border-t border-gray-200 px-5 py-4">
               <button
                 onClick={() => setOpen(false)}
-                className="text-xs text-gray-500"
+                className="px-4 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-100 transition"
               >
                 Cancelar
               </button>
 
               <button
                 onClick={handleUpdate}
-                className="bg-primary text-white px-3 py-1 rounded text-xs"
+                className="bg-primary hover:opacity-90 text-white px-5 py-2 rounded-xl text-sm transition"
               >
-                Salvar
+                Salvar alterações
               </button>
             </div>
           </div>
