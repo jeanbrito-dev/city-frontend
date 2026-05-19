@@ -16,6 +16,7 @@ export default function RelatarOcorrencia() {
   const [descricao, setDescricao] = useState("");
   const [local, setLocal] = useState("");
   const [loading, setLoading] = useState(false);
+  const [warning, setWarning] = useState(false);
 
   const categorias = [
     "Ocorrência",
@@ -62,8 +63,7 @@ export default function RelatarOcorrencia() {
     }
 
     if (!user) {
-      alert("Faça login para relatar uma ocorrência");
-      navigate("/login");
+      setWarning(true);
       return;
     }
 
@@ -115,6 +115,24 @@ export default function RelatarOcorrencia() {
         fontFamily: "var(--font-text)",
       }}
     >
+      {warning && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-[300px] text-center shadow-xl">
+            <h2 className="text-lg font-semibold mb-2">Login necessário</h2>
+
+            <p className="text-sm text-gray-500 mb-5">
+              Você precisa estar logado para publicar uma ocorrência.
+            </p>
+
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-primary text-white px-5 py-2 rounded-xl text-sm"
+            >
+              Fazer login
+            </button>
+          </div>
+        </div>
+      )}
       {/* HEADER */}
       <div className="text-center mb-6">
         <h1
