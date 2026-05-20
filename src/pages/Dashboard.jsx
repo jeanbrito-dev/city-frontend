@@ -109,13 +109,13 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-[#F3F3F3] font-text">
-      <h1 className="text-[20px] md:text-[28px] text-center md:text-left mb-6 font-semibold">
+      <h1 className="text-[32px] md:text-[45px] text-center md:text-left mb-6 font-semibold">
         Bem-vindo <span className="text-primary font-bold">{nome}</span>
       </h1>
 
-      {/* MAP WIDGET */}
-      <section className="max-w-5xl mx-auto mb-6">
-        <div className="h-[300px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200">
+      {/* Mapa */}
+      <section className="max-w-[1555px] mx-auto mb-6">
+        <div className="h-72 md:h-120 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200">
           <MapContainer
             center={[-23.6205, -45.4132]}
             zoom={13}
@@ -143,7 +143,7 @@ export default function Dashboard() {
         <div className="flex justify-center md:justify-end mt-4">
           <Link
             to="/relatar"
-            className="bg-[#2D8FFF] hover:bg-[#1a7ae6] transition-colors text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-sm"
+            className="bg-[#2D8FFF] hover:bg-[#1a7ae6] transition-colors text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95"
           >
             + Registrar ocorrência
           </Link>
@@ -166,7 +166,7 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* DROPDOWN */}
+            {/* Dropdown */}
             <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setOpen(!open)}
@@ -221,7 +221,7 @@ export default function Dashboard() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="bg-gradient text-white px-10 py-2 rounded-[10px] font-medium text-[14px]"
+              className="bg-gradient text-white px-10 py-2 rounded-[10px] font-medium text-[14px] cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95"
             >
               {showAll ? "Ver menos" : "Ver mais"}
             </button>

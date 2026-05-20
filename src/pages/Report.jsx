@@ -277,7 +277,7 @@ export default function RelatarOcorrencia() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2"
+            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95"
           >
             {loading ? "Enviando..." : "Publicar Ocorrência"}
             <Send size={16} />
