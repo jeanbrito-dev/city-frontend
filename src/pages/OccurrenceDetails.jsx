@@ -7,6 +7,7 @@ import {
   getComments,
   addComment as apiAddComment,
   addReply as apiAddReply,
+  toggleLike as apiToggleLike,
 } from "../services/api";
 
 export default function OccurrenceDetails() {
@@ -39,6 +40,12 @@ export default function OccurrenceDetails() {
         const data = await getOccurrenceById(id);
         setOccurrence(data);
         setLikesCount(data.likes || 0);
+
+        // Verifica se o usuário logado já curtiu
+        const user = getLoggedUser();
+        if (user && data.likedBy) {
+          setLiked(data.likedBy.includes(user.id));
+        }
       } catch (err) {
         console.error(err);
         setError("Ocorrência não encontrada");
@@ -65,9 +72,24 @@ export default function OccurrenceDetails() {
     fetchComments();
   }, [id]);
 
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    const user = getLoggedUser();
+    if (!user) return;
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikesCount((prev) => (wasLiked ? prev - 1 : prev + 1));
+
+    try {
+      const result = await apiToggleLike(id, user.id);
+      setLikesCount(result.likes);
+      setLiked(result.liked);
+    } catch (err) {
+      console.error("Erro ao curtir:", err);
+      // reverte em caso de erro
+      setLiked(wasLiked);
+      setLikesCount((prev) => (wasLiked ? prev + 1 : prev - 1));
+    }
   };
 
   // Enviar comentário novo via API

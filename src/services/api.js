@@ -42,6 +42,17 @@ export const updateOccurrence = async (id, data) => {
   return res.json();
 };
 
+export const toggleLike = async (id, userId) => {
+  const res = await fetch(`${BASE_URL}/occurrences/${id}/like`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!res.ok) throw new Error("Erro ao curtir ocorrência");
+  return res.json();
+};
+
 // AUTH
 export const login = async (data) => {
   const res = await fetch(`${BASE_URL}/auth/login`, {

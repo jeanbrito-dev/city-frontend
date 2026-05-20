@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ThumbsUp,
@@ -11,7 +11,7 @@ import {
   Pencil,
 } from "lucide-react";
 
-import { updateOccurrence } from "../services/api";
+import { updateOccurrence, getOccurrenceById, getComments, toggleLike as apiToggleLike } from "../services/api";
 
 export default function DenunciaCard({ data }) {
   const [open, setOpen] = useState(false);
@@ -19,6 +19,64 @@ export default function DenunciaCard({ data }) {
   const [descricao, setDescricao] = useState(data.descricao);
   const [status, setStatus] = useState(data.status);
   const [categoria, setCategoria] = useState(data.categoria);
+
+  
+  const [likes, setLikes] = useState(0);
+  const [comentarios, setComentarios] = useState(0);
+  const [liked, setLiked] = useState(false);
+
+  const getLoggedUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const user = getLoggedUser();
+        const occ = await getOccurrenceById(data.id);
+        setLikes(occ.likes || 0);
+
+        if (user && occ.likedBy) {
+          setLiked(occ.likedBy.includes(user.id));
+        }
+
+        const comments = await getComments(data.id);
+        const total = comments.reduce(
+          (acc, c) => acc + 1 + (c.replies?.length || 0),
+          0,
+        );
+        setComentarios(total);
+      } catch (err) {
+        console.error("Erro ao buscar contagens:", err);
+      }
+    };
+
+    fetchCounts();
+  }, [data.id]);
+
+
+  const handleLike = async () => {
+    const user = getLoggedUser();
+    if (!user) return;
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+
+    try {
+      const result = await apiToggleLike(data.id, user.id);
+      setLikes(result.likes);
+      setLiked(result.liked);
+    } catch (err) {
+      console.error("Erro ao curtir:", err);
+      setLiked(wasLiked);
+      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+    }
+  };
 
   const getStatusStyle = () => {
     switch (data.status) {
@@ -93,14 +151,22 @@ export default function DenunciaCard({ data }) {
         </div>
 
         <div className="flex items-center gap-2 text-[11px] mt-2 text-gray-500 font-medium">
-          <span className="flex items-center gap-1">
-            <ThumbsUp size={12} />
-            {data.likes}
-          </span>
+          <button
+            onClick={handleLike}
+            className={`flex items-center gap-1 bg-transparent border-none cursor-pointer p-0 font-medium text-[11px] transition-colors ${
+              liked ? "text-primary" : "text-gray-500"
+            }`}
+          >
+            <ThumbsUp
+              size={13}
+              className={liked ? "fill-primary text-primary" : ""}
+            />
+            {likes}
+          </button>
 
           <span className="flex items-center gap-1">
             <MessageCircle size={12} />
-            {data.comentarios}
+            {comentarios}
           </span>
 
           <Link
@@ -224,3 +290,5 @@ export default function DenunciaCard({ data }) {
     </div>
   );
 }
+
+

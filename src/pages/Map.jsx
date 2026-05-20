@@ -66,8 +66,6 @@ export default function Dashboard() {
               data: item.createdAt
                 ? new Date(item.createdAt).toLocaleDateString("pt-BR")
                 : "Agora",
-              likes: item.id?.length || 0,
-              comentarios: item.id?.length % 5 || 0,
             };
           }
 
@@ -93,8 +91,6 @@ export default function Dashboard() {
             data: item.createdAt
               ? new Date(item.createdAt).toLocaleDateString("pt-BR")
               : "Agora",
-            likes: item.id?.length || 0,
-            comentarios: item.id?.length % 5 || 0,
           };
         }),
       );
