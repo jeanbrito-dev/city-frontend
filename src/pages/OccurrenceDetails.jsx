@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ThumbsUp, MessageCircle, AlertCircle } from "lucide-react";
+import {
+  ThumbsUp,
+  MessageCircle,
+  AlertCircle,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+} from "lucide-react";
 
 import {
   getOccurrenceById,
@@ -8,6 +16,10 @@ import {
   addComment as apiAddComment,
   addReply as apiAddReply,
   toggleLike as apiToggleLike,
+  updateComment as apiUpdateComment,
+  deleteComment as apiDeleteComment,
+  updateReply as apiUpdateReply,
+  deleteReply as apiDeleteReply,
 } from "../services/api";
 
 export default function OccurrenceDetails() {
@@ -22,6 +34,20 @@ export default function OccurrenceDetails() {
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [editingComment, setEditingComment] = useState(null);
+  const [editingReply, setEditingReply] = useState(null);
+
+  const [successModal, setSuccessModal] = useState("");
+  const [errorModal, setErrorModal] = useState("");
+
+  const [confirmDelete, setConfirmDelete] = useState({
+    open: false,
+    type: null,
+    commentId: null,
+    replyId: null,
+  });
+
+  const [editText, setEditText] = useState("");
 
   // Pega o usuário logado
   const getLoggedUser = () => {
@@ -30,6 +56,13 @@ export default function OccurrenceDetails() {
     } catch {
       return null;
     }
+  };
+
+  const isOwner = (author) => {
+    const user = getLoggedUser();
+    if (!user) return false;
+
+    return author === `@${user.nome}`;
   };
 
   // Busca dados da ocorrência
@@ -142,6 +175,106 @@ export default function OccurrenceDetails() {
     }
   };
 
+  const handleEditComment = async (commentId) => {
+    if (!editText.trim()) return;
+
+    try {
+      const updated = await apiUpdateComment(id, commentId, {
+        texto: editText,
+      });
+
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? updated : c)),
+      );
+
+      setEditingComment(null);
+      setEditText("");
+      setSuccessModal("Comentário atualizado");
+    } catch (err) {
+      console.error("Erro ao editar comentário:", err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await apiDeleteComment(id, commentId);
+
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+
+      setSuccessModal("Comentário deletado com sucesso");
+
+      setConfirmDelete({
+        open: false,
+        type: null,
+        commentId: null,
+        replyId: null,
+      });
+    } catch (err) {
+      console.error(err);
+
+      setErrorModal("Erro ao deletar comentário");
+    }
+  };
+
+  const handleEditReply = async (commentId, replyId) => {
+    if (!editText.trim()) return;
+
+    try {
+      const updatedReply = await apiUpdateReply(id, commentId, replyId, {
+        texto: editText,
+      });
+
+      setComments((prev) =>
+        prev.map((c) => {
+          if (c.id !== commentId) return c;
+
+          return {
+            ...c,
+            replies: c.replies.map((r) =>
+              r.id === replyId ? updatedReply : r,
+            ),
+          };
+        }),
+      );
+
+      setEditingReply(null);
+      setEditText("");
+      setSuccessModal("Resposta atualizada");
+    } catch (err) {
+      console.error("Erro ao editar resposta:", err);
+    }
+  };
+
+  const handleDeleteReply = async (commentId, replyId) => {
+    try {
+      await apiDeleteReply(id, commentId, replyId);
+
+      setComments((prev) =>
+        prev.map((c) => {
+          if (c.id !== commentId) return c;
+
+          return {
+            ...c,
+            replies: c.replies.filter((r) => r.id !== replyId),
+          };
+        }),
+      );
+
+      setSuccessModal("Resposta deletada com sucesso");
+
+      setConfirmDelete({
+        open: false,
+        type: null,
+        commentId: null,
+        replyId: null,
+      });
+    } catch (err) {
+      console.error(err);
+
+      setErrorModal("Erro ao deletar resposta");
+    }
+  };
+
   // Contagem total
   const totalComments = comments.reduce(
     (acc, c) => acc + 1 + (c.replies?.length || 0),
@@ -178,18 +311,15 @@ export default function OccurrenceDetails() {
 
   return (
     <div className="min-h-screen bg-[#F3F3F3] font-text">
-      {/* Wrapper */}
       <div className="max-w-[1100px] mx-auto px-4 py-6 md:px-8 md:py-10">
-        {/* ========== CARD AZUL PRINCIPAL ========== */}
         <div className="bg-tertiary/25 rounded-2xl p-5 md:p-8">
-          {/* Layout: mobile coluna | desktop row */}
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {/* ===== COLUNA ESQUERDA ===== */}
             <div className="flex-1 flex flex-col">
-              {/* Título */}
               <h1 className="font-title text-[26px] md:text-[30px] font-bold text-gray-900 leading-tight">
                 {occurrence.titulo}
               </h1>
+
               <p className="text-[13px] text-gray-600 mt-1 mb-4">
                 Ocorrência feita por{" "}
                 <span className="text-primary font-medium">
@@ -197,7 +327,6 @@ export default function OccurrenceDetails() {
                 </span>
               </p>
 
-              {/* Imagem */}
               <div className="rounded-2xl overflow-hidden mb-5 aspect-[4/3] bg-gray-300">
                 {occurrence.imagemUrl ? (
                   <img
@@ -213,11 +342,11 @@ export default function OccurrenceDetails() {
                 )}
               </div>
 
-              {/* Card branco da Descrição */}
               <div className="mb-5">
                 <h3 className="text-[15px] font-semibold text-gray-900 mb-2 border-b-2 border-primary inline-block pb-0.5">
                   Descrição
                 </h3>
+
                 <div className="bg-white rounded-xl px-5 py-4 shadow-sm">
                   <p className="text-[13px] text-gray-600 leading-relaxed m-0">
                     {occurrence.descricao || "Sem descrição disponível."}
@@ -225,7 +354,6 @@ export default function OccurrenceDetails() {
                 </div>
               </div>
 
-              {/* Likes / Comments count */}
               <div className="flex items-center gap-6 mt-auto">
                 <button
                   onClick={handleLike}
@@ -237,98 +365,235 @@ export default function OccurrenceDetails() {
                     size={20}
                     className={liked ? "fill-primary text-primary" : ""}
                   />
+
                   <span className="font-medium">{likesCount}</span>
                 </button>
 
                 <div className="flex items-center gap-1.5 text-base text-gray-600">
                   <MessageCircle size={20} />
+
                   <span className="font-medium">{totalComments}</span>
                 </div>
               </div>
             </div>
 
-            {/* ===== COLUNA DIREITA: Comentários ===== */}
+            {/* ===== COMENTÁRIOS ===== */}
             <div className="flex-1 bg-white rounded-2xl px-5 py-5 md:px-6 md:py-6 shadow-sm flex flex-col">
               <h2 className="font-title text-[20px] md:text-[22px] font-semibold text-gray-900 text-center mb-4">
                 Comentários
               </h2>
 
-              {/* Lista com scroll */}
-              <div className="flex-1 overflow-y-auto max-h-[400px] md:max-h-[450px] pr-1 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto max-h-[450px] pr-1 custom-scrollbar">
                 {comments.length > 0 ? (
                   comments.map((comment) => (
                     <div
                       key={comment.id}
-                      className="py-3 border-b border-gray-200 last:border-b-0"
+                      className="mb-4 bg-[#F7F7F7] rounded-2xl p-4 border border-gray-200"
                     >
-                      {/* Comentário principal */}
-                      <span className="text-[13px] font-semibold text-gray-900 block mb-1">
-                        {comment.autor}
-                      </span>
-                      <p className="text-[12px] text-gray-500 leading-normal m-0">
-                        {comment.texto}
-                      </p>
+                      {/* HEADER */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <span className="text-[13px] font-semibold text-gray-900 block">
+                            {comment.autor}
+                          </span>
+
+                          <span className="text-[10px] text-gray-400">
+                            {new Date(comment.createdAt).toLocaleString(
+                              "pt-BR",
+                            )}
+                          </span>
+                        </div>
+
+                        {isOwner(comment.autor) && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingComment(comment.id);
+                              setEditText(comment.texto);
+                            }}
+                            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                          >
+                            <Pencil size={13} />
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              setConfirmDelete({
+                                open: true,
+                                type: "comment",
+                                commentId: comment.id,
+                                replyId: null,
+                              })
+                            }
+                            className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                        )}
+                      </div>
+
+                      {/* TEXTO */}
+                      {editingComment === comment.id ? (
+                        <div className="flex gap-2 mt-3">
+                          <input
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            className="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-[12px] outline-none focus:border-primary"
+                          />
+
+                          <button
+                            onClick={() => handleEditComment(comment.id)}
+                            className="bg-primary text-white p-2 rounded-xl"
+                          >
+                            <Check size={14} />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setEditingComment(null);
+                              setEditText("");
+                            }}
+                            className="bg-gray-200 text-gray-600 p-2 rounded-xl"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-[13px] text-gray-600 mt-3 leading-relaxed">
+                          {comment.texto}
+                        </p>
+                      )}
+
+                      {/* BOTÃO RESPONDER */}
                       <button
                         onClick={() =>
                           setReplyingTo(
                             replyingTo === comment.id ? null : comment.id,
                           )
                         }
-                        className="bg-transparent border-none text-primary text-[11px] font-medium cursor-pointer p-0 mt-1 block ml-auto hover:underline"
+                        className="text-primary text-[11px] font-medium mt-2 hover:underline"
                       >
                         Responder
                       </button>
 
-                      {/* Respostas aninhadas com scroll */}
+                      {/* RESPOSTAS */}
                       {comment.replies?.length > 0 && (
-                        <div className="ml-5 mt-2 max-h-[150px] overflow-y-auto pr-1 custom-scrollbar">
+                        <div className="mt-4 ml-4 flex flex-col gap-3 border-l-2 border-gray-200 pl-4">
                           {comment.replies.map((reply) => (
                             <div
                               key={reply.id}
-                              className={`pl-4 border-l-2 mb-2 ${
+                              className={`rounded-2xl p-3 ${
                                 reply.isAuthor
-                                  ? "border-primary bg-[#EEF2FA] rounded-r-xl py-3 pr-3"
-                                  : "border-gray-200 py-2"
+                                  ? "bg-[#EEF2FA] border border-primary/20"
+                                  : "bg-white border border-gray-200"
                               }`}
                             >
-                              <span
-                                className={`text-[12px] font-semibold block mb-0.5 ${
-                                  reply.isAuthor
-                                    ? "text-primary"
-                                    : "text-gray-800"
-                                }`}
-                              >
-                                {reply.autor}
-                              </span>
-                              <p className="text-[11px] text-gray-500 leading-normal m-0">
-                                {reply.texto}
-                              </p>
-                              <button className="bg-transparent border-none text-primary text-[10px] font-medium cursor-pointer p-0 mt-1 block ml-auto hover:underline">
-                                Responder
-                              </button>
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <span
+                                    className={`text-[12px] font-semibold block ${
+                                      reply.isAuthor
+                                        ? "text-primary"
+                                        : "text-gray-800"
+                                    }`}
+                                  >
+                                    {reply.autor}
+                                  </span>
+
+                                  <span className="text-[10px] text-gray-400">
+                                    {new Date(reply.createdAt).toLocaleString(
+                                      "pt-BR",
+                                    )}
+                                  </span>
+                                </div>
+
+                                {isOwner(reply.autor) && (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setEditingReply(reply.id);
+                                      setEditText(reply.texto);
+                                    }}
+                                    className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                  >
+                                    <Pencil size={12} />
+                                  </button>
+
+                                  <button
+                                    onClick={() =>
+                                      setConfirmDelete({
+                                        open: true,
+                                        type: "reply",
+                                        commentId: comment.id,
+                                        replyId: reply.id,
+                                      })
+                                    }
+                                    className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                                )}
+                              </div>
+
+                              {editingReply === reply.id ? (
+                                <div className="flex gap-2 mt-3">
+                                  <input
+                                    value={editText}
+                                    onChange={(e) =>
+                                      setEditText(e.target.value)
+                                    }
+                                    className="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-[11px] outline-none focus:border-primary"
+                                  />
+
+                                  <button
+                                    onClick={() =>
+                                      handleEditReply(comment.id, reply.id)
+                                    }
+                                    className="bg-primary text-white p-2 rounded-xl"
+                                  >
+                                    <Check size={13} />
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setEditingReply(null);
+                                      setEditText("");
+                                    }}
+                                    className="bg-gray-200 text-gray-600 p-2 rounded-xl"
+                                  >
+                                    <X size={13} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-[12px] text-gray-600 mt-2 leading-relaxed">
+                                  {reply.texto}
+                                </p>
+                              )}
                             </div>
                           ))}
                         </div>
                       )}
 
-                      {/* Input de resposta */}
+                      {/* INPUT RESPOSTA */}
                       {replyingTo === comment.id && (
-                        <div className="ml-5 mt-2 flex gap-2">
+                        <div className="mt-4 flex gap-2">
                           <input
                             type="text"
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                             placeholder={`Responder ${comment.autor}...`}
-                            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 text-[11px] font-text outline-none focus:border-primary transition-colors"
+                            className="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-[12px] outline-none focus:border-primary"
                             onKeyDown={(e) =>
                               e.key === "Enter" && handleReply(comment.id)
                             }
-                            autoFocus
                           />
+
                           <button
                             onClick={() => handleReply(comment.id)}
                             disabled={!replyText.trim()}
-                            className="bg-gradient text-white text-[11px] font-medium px-3 py-2 rounded-lg border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="bg-gradient text-white px-4 rounded-xl text-[12px] disabled:opacity-40"
                           >
                             Enviar
                           </button>
@@ -342,12 +607,13 @@ export default function OccurrenceDetails() {
                       size={32}
                       className="mx-auto mb-2 text-gray-300"
                     />
+
                     <p>Nenhum comentário ainda. Seja o primeiro!</p>
                   </div>
                 )}
               </div>
 
-              {/* Input de comentário novo */}
+              {/* NOVO COMENTÁRIO */}
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <div className="flex gap-2">
                   <input
@@ -355,13 +621,14 @@ export default function OccurrenceDetails() {
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Escreva um comentário..."
-                    className="flex-1 px-4 py-2.5 rounded-[10px] border border-gray-300 text-[13px] font-text outline-none bg-white transition-colors focus:border-primary"
+                    className="flex-1 px-4 py-2.5 rounded-[10px] border border-gray-300 text-[13px] outline-none bg-white focus:border-primary"
                     onKeyDown={(e) => e.key === "Enter" && handleComment()}
                   />
+
                   <button
                     onClick={handleComment}
                     disabled={!commentText.trim()}
-                    className="bg-gradient text-white text-[12px] font-medium px-4 py-2.5 rounded-[10px] border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="bg-gradient text-white text-[12px] font-medium px-4 py-2.5 rounded-[10px] disabled:opacity-40"
                   >
                     Enviar
                   </button>
@@ -370,6 +637,73 @@ export default function OccurrenceDetails() {
             </div>
           </div>
         </div>
+
+        {/* MODAL DELETE */}
+        {confirmDelete.open && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+            <div className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl">
+              <h2 className="text-lg font-semibold text-danger">
+                Confirmar exclusão
+              </h2>
+
+              <p className="text-sm text-gray-500 mt-2">
+                Essa ação não pode ser desfeita.
+              </p>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() =>
+                    setConfirmDelete({
+                      open: false,
+                      type: null,
+                      commentId: null,
+                      replyId: null,
+                    })
+                  }
+                  className="px-4 py-2 rounded-xl bg-gray-100 text-sm"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (confirmDelete.type === "comment") {
+                      handleDeleteComment(confirmDelete.commentId);
+                    }
+
+                    if (confirmDelete.type === "reply") {
+                      handleDeleteReply(
+                        confirmDelete.commentId,
+                        confirmDelete.replyId,
+                      );
+                    }
+                  }}
+                  className="bg-danger text-white px-4 py-2 rounded-xl text-sm"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SUCCESS */}
+        {successModal && (
+          <div className="fixed top-5 right-5 z-[70]">
+            <div className="bg-success text-white px-5 py-3 rounded-2xl shadow-xl">
+              {successModal}
+            </div>
+          </div>
+        )}
+
+        {/* ERROR */}
+        {errorModal && (
+          <div className="fixed top-5 right-5 z-[70]">
+            <div className="bg-danger text-white px-5 py-3 rounded-2xl shadow-xl">
+              {errorModal}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

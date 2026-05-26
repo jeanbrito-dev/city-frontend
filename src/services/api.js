@@ -13,6 +13,18 @@ export const getOccurrenceById = async (id) => {
   return res.json();
 };
 
+export const getUserOccurrences = async (userId) => {
+  const res = await fetch(
+    `${BASE_URL}/occurrences?userId=${userId}`,
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao buscar ocorrências do usuário");
+  }
+
+  return res.json();
+};
+
 export const createOccurrence = async (data) => {
   const res = await fetch(`${BASE_URL}/occurrences`, {
     method: "POST",
@@ -74,6 +86,45 @@ export const register = async (data) => {
   return res.json();
 };
 
+// USER
+export const getUser = async (id) => {
+  const res = await fetch(`${BASE_URL}/auth/users/${id}`);
+
+  if (!res.ok) {
+    throw new Error("Erro ao buscar usuário");
+  }
+
+  return res.json();
+};
+
+export const updateUser = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/auth/users/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error("Erro ao atualizar usuário");
+  }
+
+  return res.json();
+};
+
+export const deleteUser = async (id) => {
+  const res = await fetch(`${BASE_URL}/auth/users/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar usuário");
+  }
+
+  return res.json();
+};
+
 // GEOCODE
 export const reverseGeocode = async (lat, lon) => {
   const res = await fetch(`${BASE_URL}/geocode/reverse?lat=${lat}&lon=${lon}`);
@@ -95,6 +146,90 @@ export const addComment = async (occurrenceId, data) => {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Erro ao adicionar comentário");
+  return res.json();
+};
+
+export const updateComment = async (
+  occurrenceId,
+  commentId,
+  data,
+) => {
+  const res = await fetch(
+    `${BASE_URL}/comments/${occurrenceId}/${commentId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao atualizar comentário");
+  }
+
+  return res.json();
+};
+
+export const deleteComment = async (
+  occurrenceId,
+  commentId,
+) => {
+  const res = await fetch(
+    `${BASE_URL}/comments/${occurrenceId}/${commentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar comentário");
+  }
+
+  return res.json();
+};
+
+export const updateReply = async (
+  occurrenceId,
+  commentId,
+  replyId,
+  data,
+) => {
+  const res = await fetch(
+    `${BASE_URL}/comments/${occurrenceId}/${commentId}/reply/${replyId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao atualizar resposta");
+  }
+
+  return res.json();
+};
+
+export const deleteReply = async (
+  occurrenceId,
+  commentId,
+  replyId,
+) => {
+  const res = await fetch(
+    `${BASE_URL}/comments/${occurrenceId}/${commentId}/reply/${replyId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar resposta");
+  }
+
   return res.json();
 };
 

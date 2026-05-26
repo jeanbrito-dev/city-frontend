@@ -10,9 +10,12 @@ import MapPopup from "../components/MapPopup";
 
 export const getMarkerIcon = (categoria) => {
   let color = "#888888"; // Outros
-  if (categoria === "Infraestrutura") color = "#4237E0"; // blue (primary)
-  else if (categoria === "Segurança") color = "#FF0202"; // red
-  else if (categoria === "Limpeza") color = "#34C759"; // green
+  if (categoria === "Infraestrutura")
+    color = "#4237E0"; // blue (primary)
+  else if (categoria === "Segurança")
+    color = "#FF0202"; // red
+  else if (categoria === "Limpeza")
+    color = "#34C759"; // green
   else if (categoria === "Trânsito") color = "#ECBD02"; // yellow
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="32" height="48">
@@ -20,11 +23,11 @@ export const getMarkerIcon = (categoria) => {
   </svg>`;
 
   return L.divIcon({
-    className: 'custom-div-icon',
+    className: "custom-div-icon",
     html: svg,
     iconSize: [32, 48],
     iconAnchor: [16, 48],
-    popupAnchor: [0, -48]
+    popupAnchor: [0, -48],
   });
 };
 
@@ -175,8 +178,15 @@ export default function Dashboard() {
               attribution="&copy; OpenStreetMap contributors"
               url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
             />
-            {formatted.map((occ) =>
-              occ.latitude && occ.longitude ? (
+
+            {formatted
+              .filter(
+                (occ) =>
+                  occ.latitude &&
+                  occ.longitude &&
+                  occ.status?.toLowerCase() !== "resolvido",
+              )
+              .map((occ) => (
                 <Marker
                   key={occ.id}
                   position={[Number(occ.latitude), Number(occ.longitude)]}
@@ -191,8 +201,7 @@ export default function Dashboard() {
                     <MapPopup occ={occ} />
                   </Popup>
                 </Marker>
-              ) : null,
-            )}
+              ))}
           </MapContainer>
         </div>
         <div className="flex justify-center md:justify-end mt-4">

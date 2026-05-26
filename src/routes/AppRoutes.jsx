@@ -11,6 +11,7 @@ import Map from "../pages/Map";
 import Report from "../pages/Report";
 import OccurrenceDetails from "../pages/OccurrenceDetails";
 import NotFound from "../pages/NotFound";
+import User from "../pages/User";
 
 export default function AppRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         <Route path="/mapa" element={<Map />} />
         <Route path="/relatar" element={<Report />} />
         <Route path="/ocorrencia/:id" element={<OccurrenceDetails />} />
+        <Route path="/perfil" element={<User />} />
       </Route>
 
       {/* ROTAS DE AUTENTICAÇÃO */}

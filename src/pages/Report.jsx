@@ -1,4 +1,12 @@
-import { AlertTriangle, MapPin, Image as ImageIcon, Send } from "lucide-react";
+import {
+  AlertTriangle,
+  MapPin,
+  Image as ImageIcon,
+  Send,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+
 import { useState, useRef } from "react";
 import { createOccurrence } from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -7,16 +15,23 @@ export default function RelatarOcorrencia() {
   const [categoria, setCategoria] = useState("Ocorrência");
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState("");
+
   const fileInputRef = useRef();
+
   const user = JSON.parse(localStorage.getItem("user"));
+
   const navigate = useNavigate();
 
-  // novos states
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [local, setLocal] = useState("");
+
   const [loading, setLoading] = useState(false);
+
   const [warning, setWarning] = useState(false);
+
+  const [successModal, setSuccessModal] = useState("");
+  const [errorModal, setErrorModal] = useState("");
 
   const categorias = [
     "Ocorrência",
@@ -33,18 +48,39 @@ export default function RelatarOcorrencia() {
 
   const handleFile = (e) => {
     const file = e.target.files[0];
-    if (file) setFileName(file.name);
+
+    if (file) {
+      setFileName(file.name);
+    }
+  };
+
+  const showSuccess = (message) => {
+    setSuccessModal(message);
+
+    setTimeout(() => {
+      setSuccessModal("");
+    }, 3000);
+  };
+
+  const showError = (message) => {
+    setErrorModal(message);
+
+    setTimeout(() => {
+      setErrorModal("");
+    }, 3000);
   };
 
   const getCoordinates = async (address) => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
+        `http://localhost:3000/geocode/search?q=${encodeURIComponent(address)}`,
       );
 
       const data = await res.json();
 
-      if (!data || data.length === 0) return null;
+      if (!data || data.length === 0) {
+        return null;
+      }
 
       return {
         latitude: parseFloat(data[0].lat),
@@ -55,10 +91,9 @@ export default function RelatarOcorrencia() {
     }
   };
 
-  // envio para API
   const handleSubmit = async () => {
     if (!titulo || !descricao || !local) {
-      alert("Preencha todos os campos obrigatórios");
+      showError("Preencha todos os campos obrigatórios");
       return;
     }
 
@@ -70,16 +105,12 @@ export default function RelatarOcorrencia() {
     try {
       setLoading(true);
 
-      // converte endereço → coordenadas
       const coords = await getCoordinates(local);
 
-      // valida endereço
       if (!coords) {
-        alert("Endereço não encontrado. Seja mais específico.");
+        showError("Endereço não encontrado. Seja mais específico.");
         return;
       }
-
-      const user = JSON.parse(localStorage.getItem("user"));
 
       await createOccurrence({
         titulo,
@@ -89,11 +120,11 @@ export default function RelatarOcorrencia() {
         latitude: coords.latitude,
         longitude: coords.longitude,
         autor: user?.nome || "Anônimo",
+        userId: user?.id,
       });
 
-      alert("Ocorrência criada!");
+      showSuccess("Ocorrência criada com sucesso!");
 
-      // reset
       setTitulo("");
       setDescricao("");
       setLocal("");
@@ -101,7 +132,8 @@ export default function RelatarOcorrencia() {
       setFileName("");
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar");
+
+      showError("Erro ao enviar ocorrência");
     } finally {
       setLoading(false);
     }
@@ -115,29 +147,66 @@ export default function RelatarOcorrencia() {
         fontFamily: "var(--font-text)",
       }}
     >
+      {/* LOGIN */}
       {warning && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-[300px] text-center shadow-xl">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-[320px] text-center shadow-2xl animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="text-yellow-600" size={28} />
+            </div>
+
             <h2 className="text-lg font-semibold mb-2">Login necessário</h2>
 
             <p className="text-sm text-gray-500 mb-5">
               Você precisa estar logado para publicar uma ocorrência.
             </p>
 
-            <button
-              onClick={() => navigate("/login")}
-              className="bg-primary text-white px-5 py-2 rounded-xl text-sm"
-            >
-              Fazer login
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setWarning(false)}
+                className="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl text-sm hover:bg-gray-200 transition"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => navigate("/login")}
+                className="flex-1 bg-primary text-white py-2 rounded-xl text-sm hover:opacity-90 transition"
+              >
+                Fazer login
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* SUCCESS */}
+      {successModal && (
+        <div className="fixed top-5 right-5 z-[999] animate-fade-in">
+          <div className="bg-success text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+            <CheckCircle size={20} />
+            <span className="text-sm font-medium">{successModal}</span>
+          </div>
+        </div>
+      )}
+
+      {/* ERROR */}
+      {errorModal && (
+        <div className="fixed top-5 right-5 z-[999] animate-fade-in">
+          <div className="bg-danger text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+            <XCircle size={20} />
+            <span className="text-sm font-medium">{errorModal}</span>
+          </div>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="text-center mb-6">
         <h1
           className="text-[22px] md:text-[32px] font-semibold"
-          style={{ fontFamily: "var(--font-title)" }}
+          style={{
+            fontFamily: "var(--font-title)",
+          }}
         >
           Relatar ocorrência
         </h1>
@@ -162,6 +231,7 @@ export default function RelatarOcorrencia() {
             <span className="text-[12px] md:text-[14px] text-gray-600">
               {categoria}
             </span>
+
             <span>▾</span>
           </div>
 
@@ -214,6 +284,7 @@ export default function RelatarOcorrencia() {
 
         <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px] md:text-[14px] mb-4">
           <MapPin size={14} />
+
           <input
             value={local}
             onChange={(e) => setLocal(e.target.value)}
@@ -222,7 +293,7 @@ export default function RelatarOcorrencia() {
           />
         </div>
 
-        {/* MOBILE → URL */}
+        {/* MOBILE */}
         <div className="block md:hidden mb-4">
           <label className="text-[13px] font-medium mb-1 block">
             URL da imagem <span className="text-gray-400">(Opcional)</span>
@@ -230,6 +301,7 @@ export default function RelatarOcorrencia() {
 
           <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px]">
             <ImageIcon size={14} />
+
             <input
               placeholder="https://exemplo.com/imagem.jpg"
               className="flex-1 outline-none bg-transparent"
@@ -241,7 +313,7 @@ export default function RelatarOcorrencia() {
           </p>
         </div>
 
-        {/* DESKTOP → FILE */}
+        {/* DESKTOP */}
         <div className="hidden md:block mb-4">
           <label className="text-[15px] font-medium mb-1 block">
             Carregar imagem <span className="text-gray-400">(Opcional)</span>
@@ -252,6 +324,7 @@ export default function RelatarOcorrencia() {
             className="bg-white rounded-[10px] px-3 py-2 text-[14px] flex items-center gap-2"
           >
             <ImageIcon size={14} />
+
             {fileName || "Escolher arquivo"}
           </button>
 
@@ -266,6 +339,7 @@ export default function RelatarOcorrencia() {
         {/* AVISO */}
         <div className="bg-[#FCE8D5] border border-[#F5CFA0] rounded-[10px] p-3 flex gap-2 mb-5">
           <AlertTriangle size={16} className="text-[#B26A00]" />
+
           <p className="text-[11px] md:text-[13px] text-[#8A4B00]">
             Ao enviar, você confirma que as informações são verdadeiras. Relatos
             falsos prejudicam a comunidade.
@@ -277,9 +351,10 @@ export default function RelatarOcorrencia() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95"
+            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95 disabled:opacity-50"
           >
             {loading ? "Enviando..." : "Publicar Ocorrência"}
+
             <Send size={16} />
           </button>
         </div>

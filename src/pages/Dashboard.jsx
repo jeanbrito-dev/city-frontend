@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, ChevronDown } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { getUserOccurrences } from "../services/api";
 import "leaflet/dist/leaflet.css";
 
 import DenunciaCard from "../components/DenunciaCard";
 import MapPopup from "../components/MapPopup";
-import { getOccurrences } from "../services/api";
 import { getMarkerIcon } from "./Map";
 
 export default function Dashboard() {
@@ -23,9 +23,12 @@ export default function Dashboard() {
   const [categoria, setCategoria] = useState("Todas");
   const [open, setOpen] = useState(false);
 
-  // pega dados do backend
   useEffect(() => {
-    getOccurrences().then(setData);
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) return;
+
+    getUserOccurrences(user.id).then(setData);
   }, []);
 
   // helper pra limitar texto
@@ -118,22 +121,29 @@ export default function Dashboard() {
             className="h-full w-full z-0"
           >
             <TileLayer
-              attribution='&copy; OpenStreetMap contributors'
+              attribution="&copy; OpenStreetMap contributors"
               url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
             />
-            {formatted.map((occ) => (
-              occ.latitude && occ.longitude ? (
+            {formatted.map((occ) =>
+              occ.latitude &&
+              occ.longitude &&
+              occ.status?.toLowerCase() !== "resolvido" ? (
                 <Marker
                   key={occ.id}
                   position={[Number(occ.latitude), Number(occ.longitude)]}
                   icon={getMarkerIcon(occ.categoria)}
                 >
-                  <Popup className="custom-popup" closeButton={true} maxWidth={280} minWidth={240}>
+                  <Popup
+                    className="custom-popup"
+                    closeButton={true}
+                    maxWidth={280}
+                    minWidth={240}
+                  >
                     <MapPopup occ={occ} />
                   </Popup>
                 </Marker>
-              ) : null
-            ))}
+              ) : null,
+            )}
           </MapContainer>
         </div>
         <div className="flex justify-center md:justify-end mt-4">
@@ -207,7 +217,7 @@ export default function Dashboard() {
         <div className="bg-[#EDEDED] rounded-[14px] p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {visibleItems.map((item) => (
-              <DenunciaCard key={item.id} data={item} />
+              <DenunciaCard key={item.id} data={item} showEdit />
             ))}
           </div>
         </div>
