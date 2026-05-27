@@ -14,11 +14,12 @@ import {
   updateUser,
   deleteUser,
 } from "../services/api";
+import { getLoggedUser, setToken, logout } from "../utils/auth";
 
 export default function Perfil() {
   const navigate = useNavigate();
 
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedUser = getLoggedUser();
 
   const [user, setUser] = useState(null);
 
@@ -55,10 +56,7 @@ export default function Perfil() {
         senha,
       });
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(updated.user)
-      );
+      setToken(updated.token);
 
       setUser(updated.user);
 
@@ -75,7 +73,7 @@ export default function Perfil() {
     try {
       await deleteUser(user.id);
 
-      localStorage.removeItem("user");
+      logout();
 
       navigate("/");
 

@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Search, ChevronDown } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { getLoggedUser } from "../utils/auth";
 
 import DenunciaCard from "../components/DenunciaCard";
 import { getOccurrences } from "../services/api";
@@ -32,7 +33,7 @@ export const getMarkerIcon = (categoria) => {
 };
 
 export default function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getLoggedUser();
   const nome = user?.nome || "Usuário";
 
   const [data, setData] = useState([]);

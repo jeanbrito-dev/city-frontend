@@ -18,6 +18,7 @@ import {
   toggleLike as apiToggleLike,
   deleteOccurrence,
 } from "../services/api";
+import { getLoggedUser as getAuthUser } from "../utils/auth";
 
 export default function DenunciaCard({ data, showEdit = false }) {
   const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ export default function DenunciaCard({ data, showEdit = false }) {
 
   const getLoggedUser = () => {
     try {
-      return JSON.parse(localStorage.getItem("user"));
+      return getAuthUser();
     } catch {
       return null;
     }

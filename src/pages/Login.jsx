@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { login } from "../services/api";
+import { setToken } from "../utils/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,8 +14,8 @@ export default function Login() {
     try {
       const res = await login({ email, senha });
 
-      if (res.user) {
-        localStorage.setItem("user", JSON.stringify(res.user));
+      if (res.token) {
+        setToken(res.token);
         navigate(`/dashboard?nome=${res.user.nome}`);
       } else {
         alert("Credenciais inválidas");

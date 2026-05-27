@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router";
 import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import { getLoggedUser, logout } from "../../utils/auth";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getLoggedUser();
 
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -26,7 +27,7 @@ export default function Header() {
     }`;
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    logout();
     navigate("/");
   };
 

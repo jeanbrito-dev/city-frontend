@@ -21,6 +21,7 @@ import {
   updateReply as apiUpdateReply,
   deleteReply as apiDeleteReply,
 } from "../services/api";
+import { getLoggedUser as getAuthUser } from "../utils/auth";
 
 export default function OccurrenceDetails() {
   const { id } = useParams();
@@ -52,7 +53,7 @@ export default function OccurrenceDetails() {
   // Pega o usuário logado
   const getLoggedUser = () => {
     try {
-      return JSON.parse(localStorage.getItem("user"));
+      return getAuthUser();
     } catch {
       return null;
     }

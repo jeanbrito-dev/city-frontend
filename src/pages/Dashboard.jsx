@@ -8,9 +8,10 @@ import "leaflet/dist/leaflet.css";
 import DenunciaCard from "../components/DenunciaCard";
 import MapPopup from "../components/MapPopup";
 import { getMarkerIcon } from "./Map";
+import { getLoggedUser } from "../utils/auth";
 
 export default function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getLoggedUser();
   const nome = user?.nome || "Usuário";
 
   const [data, setData] = useState([]);
@@ -24,7 +25,7 @@ export default function Dashboard() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = getLoggedUser();
 
     if (!user) return;
 

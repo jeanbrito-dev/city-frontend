@@ -10,6 +10,7 @@ import {
 import { useState, useRef } from "react";
 import { createOccurrence } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { getLoggedUser } from "../utils/auth";
 
 export default function RelatarOcorrencia() {
   const [categoria, setCategoria] = useState("Ocorrência");
@@ -18,7 +19,7 @@ export default function RelatarOcorrencia() {
 
   const fileInputRef = useRef();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getLoggedUser();
 
   const navigate = useNavigate();
 

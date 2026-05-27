@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
+import { getLoggedUser } from "../utils/auth";
 
 export default function NotFound() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getLoggedUser();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F3F3F3] px-4">

@@ -1,20 +1,31 @@
 const BASE_URL = "http://localhost:3000";
 
+const apiFetch = async (url, options = {}) => {
+  const token = localStorage.getItem("token");
+  const headers = {
+    ...options.headers,
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return fetch(url, { ...options, headers });
+};
+
 // OCCURRENCES
 export const getOccurrences = async () => {
-  const res = await fetch(`${BASE_URL}/occurrences`);
+  const res = await apiFetch(`${BASE_URL}/occurrences`);
   if (!res.ok) throw new Error("Erro ao buscar ocorrências");
   return res.json();
 };
 
 export const getOccurrenceById = async (id) => {
-  const res = await fetch(`${BASE_URL}/occurrences/${id}`);
+  const res = await apiFetch(`${BASE_URL}/occurrences/${id}`);
   if (!res.ok) throw new Error("Erro ao buscar ocorrência");
   return res.json();
 };
 
 export const getUserOccurrences = async (userId) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/occurrences?userId=${userId}`,
   );
 
@@ -26,7 +37,7 @@ export const getUserOccurrences = async (userId) => {
 };
 
 export const createOccurrence = async (data) => {
-  const res = await fetch(`${BASE_URL}/occurrences`, {
+  const res = await apiFetch(`${BASE_URL}/occurrences`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -36,7 +47,7 @@ export const createOccurrence = async (data) => {
 };
 
 export const deleteOccurrence = async (id) => {
-  const res = await fetch(`${BASE_URL}/occurrences/${id}`, {
+  const res = await apiFetch(`${BASE_URL}/occurrences/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Erro ao deletar ocorrência");
@@ -44,7 +55,7 @@ export const deleteOccurrence = async (id) => {
 };
 
 export const updateOccurrence = async (id, data) => {
-  const res = await fetch(`${BASE_URL}/occurrences/${id}`, {
+  const res = await apiFetch(`${BASE_URL}/occurrences/${id}`, {
     method: "PUT", // ou PATCH se preferir parcial
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -55,7 +66,7 @@ export const updateOccurrence = async (id, data) => {
 };
 
 export const toggleLike = async (id, userId) => {
-  const res = await fetch(`${BASE_URL}/occurrences/${id}/like`, {
+  const res = await apiFetch(`${BASE_URL}/occurrences/${id}/like`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId }),
@@ -67,7 +78,7 @@ export const toggleLike = async (id, userId) => {
 
 // AUTH
 export const login = async (data) => {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
+  const res = await apiFetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -77,7 +88,7 @@ export const login = async (data) => {
 };
 
 export const register = async (data) => {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
+  const res = await apiFetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -88,7 +99,7 @@ export const register = async (data) => {
 
 // USER
 export const getUser = async (id) => {
-  const res = await fetch(`${BASE_URL}/auth/users/${id}`);
+  const res = await apiFetch(`${BASE_URL}/auth/users/${id}`);
 
   if (!res.ok) {
     throw new Error("Erro ao buscar usuário");
@@ -98,7 +109,7 @@ export const getUser = async (id) => {
 };
 
 export const updateUser = async (id, data) => {
-  const res = await fetch(`${BASE_URL}/auth/users/${id}`, {
+  const res = await apiFetch(`${BASE_URL}/auth/users/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -114,7 +125,7 @@ export const updateUser = async (id, data) => {
 };
 
 export const deleteUser = async (id) => {
-  const res = await fetch(`${BASE_URL}/auth/users/${id}`, {
+  const res = await apiFetch(`${BASE_URL}/auth/users/${id}`, {
     method: "DELETE",
   });
 
@@ -127,20 +138,20 @@ export const deleteUser = async (id) => {
 
 // GEOCODE
 export const reverseGeocode = async (lat, lon) => {
-  const res = await fetch(`${BASE_URL}/geocode/reverse?lat=${lat}&lon=${lon}`);
+  const res = await apiFetch(`${BASE_URL}/geocode/reverse?lat=${lat}&lon=${lon}`);
   if (!res.ok) throw new Error("Erro ao buscar endereço");
   return res.json();
 };
 
 // COMMENTS
 export const getComments = async (occurrenceId) => {
-  const res = await fetch(`${BASE_URL}/comments/${occurrenceId}`);
+  const res = await apiFetch(`${BASE_URL}/comments/${occurrenceId}`);
   if (!res.ok) throw new Error("Erro ao buscar comentários");
   return res.json();
 };
 
 export const addComment = async (occurrenceId, data) => {
-  const res = await fetch(`${BASE_URL}/comments/${occurrenceId}`, {
+  const res = await apiFetch(`${BASE_URL}/comments/${occurrenceId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -154,7 +165,7 @@ export const updateComment = async (
   commentId,
   data,
 ) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/comments/${occurrenceId}/${commentId}`,
     {
       method: "PUT",
@@ -176,7 +187,7 @@ export const deleteComment = async (
   occurrenceId,
   commentId,
 ) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/comments/${occurrenceId}/${commentId}`,
     {
       method: "DELETE",
@@ -196,7 +207,7 @@ export const updateReply = async (
   replyId,
   data,
 ) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/comments/${occurrenceId}/${commentId}/reply/${replyId}`,
     {
       method: "PUT",
@@ -219,7 +230,7 @@ export const deleteReply = async (
   commentId,
   replyId,
 ) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/comments/${occurrenceId}/${commentId}/reply/${replyId}`,
     {
       method: "DELETE",
@@ -234,7 +245,7 @@ export const deleteReply = async (
 };
 
 export const addReply = async (occurrenceId, commentId, data) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/comments/${occurrenceId}/${commentId}/reply`,
     {
       method: "POST",
