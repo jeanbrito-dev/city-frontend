@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   preview: {
+    host: '0.0.0.0',
     allowedHosts: ['city-frontend.onrender.com']
   }
 })
