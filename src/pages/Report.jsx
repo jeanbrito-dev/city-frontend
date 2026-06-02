@@ -71,26 +71,47 @@ export default function RelatarOcorrencia() {
     }, 3000);
   };
 
+  // const getCoordinates = async (address) => {
+  //   try {
+  //     const res = await fetch(
+  //       `http://localhost:3000/geocode/search?q=${encodeURIComponent(address)}`,
+  //     );
+
+  //     const data = await res.json();
+
+  //     if (!data || data.length === 0) {
+  //       return null;
+  //     }
+
+  //     return {
+  //       latitude: parseFloat(data[0].lat),
+  //       longitude: parseFloat(data[0].lon),
+  //     };
+  //   } catch {
+  //     return null;
+  //   }
+  // };
+
   const getCoordinates = async (address) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/geocode/search?q=${encodeURIComponent(address)}`,
-      );
+  try {
+    const res = await fetch(
+      `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(address)}`
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!data || data.length === 0) {
-        return null;
-      }
-
-      return {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon),
-      };
-    } catch {
+    if (!data || data.length === 0) {
       return null;
     }
-  };
+
+    return {
+      latitude: parseFloat(data[0].lat),
+      longitude: parseFloat(data[0].lon),
+    };
+  } catch {
+    return null;
+  }
+};
 
   const handleSubmit = async () => {
     if (!titulo || !descricao || !local) {
