@@ -329,9 +329,9 @@ export default function OccurrenceDetails() {
               </p>
 
               <div className="rounded-2xl overflow-hidden mb-5 aspect-[4/3] bg-gray-300">
-                {occurrence.imagemUrl ? (
+                {occurrence.imagem ? (
                   <img
-                    src={occurrence.imagemUrl}
+                    src={`https://city-backend-production.up.railway.app${occurrence.imagem}`}
                     alt={occurrence.titulo}
                     className="w-full h-full object-cover block"
                   />
@@ -358,9 +358,8 @@ export default function OccurrenceDetails() {
               <div className="flex items-center gap-6 mt-auto">
                 <button
                   onClick={handleLike}
-                  className={`flex items-center gap-1.5 text-base bg-transparent border-none cursor-pointer font-text ${
-                    liked ? "text-primary" : "text-gray-600"
-                  }`}
+                  className={`flex items-center gap-1.5 text-base bg-transparent border-none cursor-pointer font-text ${liked ? "text-primary" : "text-gray-600"
+                    }`}
                 >
                   <ThumbsUp
                     size={20}
@@ -406,31 +405,31 @@ export default function OccurrenceDetails() {
                         </div>
 
                         {isOwner(comment.autor) && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingComment(comment.id);
-                              setEditText(comment.texto);
-                            }}
-                            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                          >
-                            <Pencil size={13} />
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingComment(comment.id);
+                                setEditText(comment.texto);
+                              }}
+                              className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                            >
+                              <Pencil size={13} />
+                            </button>
 
-                          <button
-                            onClick={() =>
-                              setConfirmDelete({
-                                open: true,
-                                type: "comment",
-                                commentId: comment.id,
-                                replyId: null,
-                              })
-                            }
-                            className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
+                            <button
+                              onClick={() =>
+                                setConfirmDelete({
+                                  open: true,
+                                  type: "comment",
+                                  commentId: comment.id,
+                                  replyId: null,
+                                })
+                              }
+                              className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         )}
                       </div>
 
@@ -484,20 +483,18 @@ export default function OccurrenceDetails() {
                           {comment.replies.map((reply) => (
                             <div
                               key={reply.id}
-                              className={`rounded-2xl p-3 ${
-                                reply.isAuthor
+                              className={`rounded-2xl p-3 ${reply.isAuthor
                                   ? "bg-[#EEF2FA] border border-primary/20"
                                   : "bg-white border border-gray-200"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div>
                                   <span
-                                    className={`text-[12px] font-semibold block ${
-                                      reply.isAuthor
+                                    className={`text-[12px] font-semibold block ${reply.isAuthor
                                         ? "text-primary"
                                         : "text-gray-800"
-                                    }`}
+                                      }`}
                                   >
                                     {reply.autor}
                                   </span>
@@ -510,31 +507,31 @@ export default function OccurrenceDetails() {
                                 </div>
 
                                 {isOwner(reply.autor) && (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => {
-                                      setEditingReply(reply.id);
-                                      setEditText(reply.texto);
-                                    }}
-                                    className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                                  >
-                                    <Pencil size={12} />
-                                  </button>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingReply(reply.id);
+                                        setEditText(reply.texto);
+                                      }}
+                                      className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                    >
+                                      <Pencil size={12} />
+                                    </button>
 
-                                  <button
-                                    onClick={() =>
-                                      setConfirmDelete({
-                                        open: true,
-                                        type: "reply",
-                                        commentId: comment.id,
-                                        replyId: reply.id,
-                                      })
-                                    }
-                                    className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
+                                    <button
+                                      onClick={() =>
+                                        setConfirmDelete({
+                                          open: true,
+                                          type: "reply",
+                                          commentId: comment.id,
+                                          replyId: reply.id,
+                                        })
+                                      }
+                                      className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
+                                  </div>
                                 )}
                               </div>
 
