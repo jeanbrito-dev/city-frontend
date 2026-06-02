@@ -16,6 +16,7 @@ export default function RelatarOcorrencia() {
   const [categoria, setCategoria] = useState("Ocorrência");
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [imagem, setImagem] = useState(null);
 
   const fileInputRef = useRef();
 
@@ -52,6 +53,7 @@ export default function RelatarOcorrencia() {
 
     if (file) {
       setFileName(file.name);
+      setImagem(file);
     }
   };
 
@@ -72,25 +74,25 @@ export default function RelatarOcorrencia() {
   };
 
   const getCoordinates = async (address) => {
-  try {
-    const res = await fetch(
-      `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(address)}`
-    );
+    try {
+      const res = await fetch(
+        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(address)}`
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data || data.length === 0) {
+      if (!data || data.length === 0) {
+        return null;
+      }
+
+      return {
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      };
+    } catch {
       return null;
     }
-
-    return {
-      latitude: parseFloat(data[0].lat),
-      longitude: parseFloat(data[0].lon),
-    };
-  } catch {
-    return null;
-  }
-};
+  };
 
   const handleSubmit = async () => {
     if (!titulo || !descricao || !local) {
@@ -113,16 +115,22 @@ export default function RelatarOcorrencia() {
         return;
       }
 
-      await createOccurrence({
-        titulo,
-        descricao,
-        categoria,
-        status: "pendente",
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        autor: user?.nome || "Anônimo",
-        userId: user?.id,
-      });
+      const formData = new FormData();
+
+      formData.append("titulo", titulo);
+      formData.append("descricao", descricao);
+      formData.append("categoria", categoria);
+      formData.append("status", "pendente");
+      formData.append("latitude", coords.latitude);
+      formData.append("longitude", coords.longitude);
+      formData.append("autor", user?.nome || "Anônimo");
+      formData.append("userId", user?.id);
+
+      if (imagem) {
+        formData.append("imagem", imagem);
+      }
+
+      await createOccurrence(formData);
 
       showSuccess("Ocorrência criada com sucesso!");
 
@@ -131,6 +139,7 @@ export default function RelatarOcorrencia() {
       setLocal("");
       setCategoria("Ocorrência");
       setFileName("");
+      setImagem(null);
     } catch (err) {
       console.error(err);
 
@@ -331,6 +340,7 @@ export default function RelatarOcorrencia() {
 
           <input
             type="file"
+            accept=".jpg,.jpeg,.png"
             ref={fileInputRef}
             onChange={handleFile}
             className="hidden"

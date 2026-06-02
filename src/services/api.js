@@ -37,11 +37,14 @@ export const getUserOccurrences = async (userId) => {
 };
 
 export const createOccurrence = async (data) => {
+  const isFormData = data instanceof FormData;
+
   const res = await apiFetch(`${BASE_URL}/occurrences`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    headers: isFormData ? {} : { "Content-Type": "application/json" },
+    body: isFormData ? data : JSON.stringify(data),
   });
+
   if (!res.ok) throw new Error("Erro ao criar ocorrência");
   return res.json();
 };
