@@ -230,9 +230,17 @@ export default function DenunciaCard({ data, showEdit = false }) {
     <>
       <div className="bg-white rounded-[10px] overflow-hidden">
         {/* TOPO */}
-        <div className="h-20 bg-gray-200 p-2">
+        <div className="h-20 bg-gray-200 p-2 relative overflow-hidden">
+          {data.imagem && (
+            <img
+              src={`https://city-backend-production.up.railway.app${data.imagem}`}
+              alt={data.titulo}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+
           <span
-            className="flex items-center gap-1 text-[10px] px-2 py-[2px] rounded font-medium w-fit"
+            className="relative z-10 flex items-center gap-1 text-[10px] px-2 py-[2px] rounded font-medium w-fit"
             style={{
               backgroundColor: statusStyle.bg,
               color: statusStyle.color,
@@ -268,9 +276,8 @@ export default function DenunciaCard({ data, showEdit = false }) {
           <div className="flex items-center gap-2 text-[11px] mt-2 text-gray-500 font-medium">
             <button
               onClick={handleLike}
-              className={`flex items-center gap-1 bg-transparent border-none cursor-pointer p-0 font-medium text-[11px] transition-colors ${
-                liked ? "text-primary" : "text-gray-500"
-              }`}
+              className={`flex items-center gap-1 bg-transparent border-none cursor-pointer p-0 font-medium text-[11px] transition-colors ${liked ? "text-primary" : "text-gray-500"
+                }`}
             >
               <ThumbsUp
                 size={13}
