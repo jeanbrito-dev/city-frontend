@@ -31,6 +31,10 @@ export default function Header() {
     navigate("/");
   };
 
+  const getFirstAndSecondName = (nomeCompleto) => {
+    return nomeCompleto.split(" ").slice(0, 2).join(" ");
+  };
+
   return (
     <header
       className={`p-4 z-50 ${
@@ -88,7 +92,7 @@ export default function Header() {
                 className="flex items-center gap-2 bg-primary text-white font-bold font-text px-4 py-2 rounded-xl"
               >
                 <User size={16} />
-                {user.nome}
+                {getFirstAndSecondName(user.nome)}
                 <ChevronDown size={16} />
               </button>
 

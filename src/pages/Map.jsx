@@ -57,53 +57,56 @@ export default function Dashboard() {
     return text.length > 35 ? text.slice(0, 35) + "..." : text;
   };
 
-  // formatação + reverse geocode
+  // formata imediatamente
   useEffect(() => {
-    const formatData = async () => {
-      const result = await Promise.all(
-        data.map(async (item) => {
-          // evita request desnecessária
-          if (!item.latitude || !item.longitude) {
-            return {
-              ...item,
-              local: item.categoria || "Não informado",
-              data: item.createdAt
-                ? new Date(item.createdAt).toLocaleDateString("pt-BR")
-                : "Agora",
-            };
-          }
+    const formattedData = data.map((item) => ({
+      ...item,
+      local: "Carregando...",
+      data: item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+        : "Agora",
+    }));
 
-          let endereco = "Local não encontrado";
+    setFormatted(formattedData);
 
-          try {
-            const res = await fetch(
-              `https://city-backend-production.up.railway.app/geocode/reverse?lat=${latitude}&lon=${longitude}`
-            );
-            const geo = await res.json();
-            const addr = geo.address || {};
+    loadAddresses(formattedData);
+  }, [data]);
 
-            endereco = [addr.road, addr.city || addr.town]
-              .filter(Boolean)
-              .join(", ");
-          } catch {
-            endereco = "Erro ao carregar";
-          }
+  const loadAddresses = async (items) => {
+    const updated = await Promise.all(
+      items.map(async (item) => {
+        if (!item.latitude || !item.longitude) {
+          return item;
+        }
+
+        try {
+          const res = await fetch(
+            `https://city-backend-production.up.railway.app/geocode/reverse?lat=${item.latitude}&lon=${item.longitude}`,
+          );
+
+          const geo = await res.json();
+
+          const addr = geo.address || {};
+
+          const endereco = [addr.road, addr.city || addr.town]
+            .filter(Boolean)
+            .join(", ");
 
           return {
             ...item,
-            local: formatEndereco(endereco),
-            data: item.createdAt
-              ? new Date(item.createdAt).toLocaleDateString("pt-BR")
-              : "Agora",
+            local: formatEndereco(endereco || "Local não encontrado"),
           };
-        }),
-      );
+        } catch {
+          return {
+            ...item,
+            local: "Erro ao carregar",
+          };
+        }
+      }),
+    );
 
-      setFormatted(result);
-    };
-
-    if (data.length) formatData();
-  }, [data]);
+    setFormatted(updated);
+  };
 
   // categorias dinâmicas
   const categorias = [
