@@ -337,7 +337,7 @@ export default function OccurrenceDetails() {
               <div className="rounded-2xl overflow-hidden mb-5 aspect-[4/3] bg-gray-300">
                 {occurrence.imagem ? (
                   <img
-                    src={`https://city-backend-production.up.railway.app${occurrence.imagem}`}
+                    src={occurrence.imagem}
                     alt={occurrence.titulo}
                     className="w-full h-full object-cover block"
                   />

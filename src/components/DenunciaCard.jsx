@@ -233,7 +233,7 @@ export default function DenunciaCard({ data, showEdit = false }) {
         <div className="h-20 bg-gray-200 p-2 relative overflow-hidden">
           {data.imagem && (
             <img
-              src={`https://city-backend-production.up.railway.app${data.imagem}`}
+              src={data.imagem}
               alt={data.titulo}
               className="absolute inset-0 w-full h-full object-cover"
             />
