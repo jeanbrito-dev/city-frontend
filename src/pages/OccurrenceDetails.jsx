@@ -322,7 +322,7 @@ export default function OccurrenceDetails() {
         <div className="bg-tertiary/25 rounded-2xl p-5 md:p-8">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {/* ===== COLUNA ESQUERDA ===== */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
               <h1 className="font-title text-[26px] md:text-[30px] font-bold text-gray-900 leading-tight">
                 {occurrence.titulo}
               </h1>
@@ -354,8 +354,8 @@ export default function OccurrenceDetails() {
                   Descrição
                 </h3>
 
-                <div className="bg-white rounded-xl px-5 py-4 shadow-sm">
-                  <p className="text-[13px] text-gray-600 leading-relaxed m-0">
+                <div className="bg-white rounded-xl px-5 py-4 shadow-sm overflow-hidden">
+                  <p className="text-[13px] text-gray-600 leading-relaxed m-0 wrap-break-words whitespace-pre-wrap">
                     {occurrence.descricao || "Sem descrição disponível."}
                   </p>
                 </div>
@@ -505,7 +505,8 @@ export default function OccurrenceDetails() {
                                         : "text-gray-800"
                                     }`}
                                   >
-                                    @{getShortName(reply.autor.replace("@", ""))}
+                                    @
+                                    {getShortName(reply.autor.replace("@", ""))}
                                   </span>
 
                                   <span className="text-[10px] text-gray-400">
