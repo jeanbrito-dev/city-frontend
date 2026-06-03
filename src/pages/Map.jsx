@@ -77,7 +77,7 @@ export default function Dashboard() {
 
           try {
             const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`,
+              `https://city-backend-production.up.railway.app/geocode/reverse?lat=${latitude}&lon=${longitude}`
             );
             const geo = await res.json();
             const addr = geo.address || {};

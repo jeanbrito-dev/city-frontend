@@ -62,7 +62,7 @@ export default function DenunciaCard({ data, showEdit = false }) {
       setLoadingAddress(true);
 
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressInput)}`,
+        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(addressInput)}`,
       );
 
       const data = await res.json();
@@ -121,12 +121,12 @@ export default function DenunciaCard({ data, showEdit = false }) {
         if (!latitude || !longitude) return;
 
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+          `https://city-backend-production.up.railway.app/geocode/reverse?lat=${latitude}&lon=${longitude}`
         );
 
         const result = await res.json();
 
-        setFullAddress(result.display_name);
+        setFullAddress(result.endereco || "Endereço não encontrado");
       } catch {
         setFullAddress("Endereço não encontrado");
       }
