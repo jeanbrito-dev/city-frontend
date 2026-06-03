@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
 import AuthLayout from "../components/layout/AuthLayout";
+import AdminLayout from "../layouts/AdminLayout";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -12,6 +13,11 @@ import Report from "../pages/Report";
 import OccurrenceDetails from "../pages/OccurrenceDetails";
 import NotFound from "../pages/NotFound";
 import User from "../pages/User";
+
+import AdminDashboard from "../pages/admin/Dashboard";
+import AdminUsers from "../pages/admin/Users";
+import AdminOccurrences from "../pages/admin/Occurrences";
+import AdminComments from "../pages/admin/Comments";
 
 export default function AppRoutes() {
   return (
@@ -32,8 +38,16 @@ export default function AppRoutes() {
         <Route path="/cadastro" element={<Register />} />
       </Route>
 
+      {/* ROTAS ADMIN */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="occurrences" element={<AdminOccurrences />} />
+        <Route path="comments" element={<AdminComments />} />
+      </Route>
+
       {/* ROTA FALLBACK */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
+}

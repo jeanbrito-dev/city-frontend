@@ -1,4 +1,4 @@
-const BASE_URL = "https://city-backend-production.up.railway.app"
+const BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:3000" : "https://city-backend-production.up.railway.app");
 
 const apiFetch = async (url, options = {}) => {
   const token = localStorage.getItem("token");
@@ -259,3 +259,43 @@ export const addReply = async (occurrenceId, commentId, data) => {
   if (!res.ok) throw new Error("Erro ao adicionar resposta");
   return res.json();
 };
+
+// ADMIN API ENDPOINTS
+export const getAdminUsers = async () => {
+  const res = await apiFetch(`${BASE_URL}/auth/admin/users`);
+  if (!res.ok) throw new Error("Erro ao buscar usuários do painel admin");
+  return res.json();
+};
+
+export const deleteAdminUser = async (id) => {
+  const res = await apiFetch(`${BASE_URL}/auth/admin/users/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Erro ao deletar usuário pelo painel admin");
+  return res.json();
+};
+
+export const getAdminOccurrences = async () => {
+  const res = await apiFetch(`${BASE_URL}/auth/admin/occurrences`);
+  if (!res.ok) throw new Error("Erro ao buscar ocorrências do painel admin");
+  return res.json();
+};
+
+export const updateAdminOccurrenceStatus = async (id, status) => {
+  const res = await apiFetch(`${BASE_URL}/auth/admin/occurrences/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error("Erro ao atualizar status da ocorrência");
+  return res.json();
+};
+
+export const deleteAdminOccurrence = async (id) => {
+  const res = await apiFetch(`${BASE_URL}/auth/admin/occurrences/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Erro ao deletar ocorrência pelo painel admin");
+  return res.json();
+};
+

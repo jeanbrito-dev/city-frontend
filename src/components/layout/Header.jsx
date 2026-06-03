@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router";
-import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, ShieldAlert } from "lucide-react";
 import { getLoggedUser, logout } from "../../utils/auth";
 
 export default function Header() {
@@ -98,6 +98,17 @@ export default function Header() {
 
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                  {user.role === "admin" && (
+                    <NavLink
+                      to="/admin"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 transition text-primary font-semibold border-b border-gray-100"
+                    >
+                      <ShieldAlert size={16} />
+                      Painel Admin
+                    </NavLink>
+                  )}
+
                   <NavLink
                     to="/perfil"
                     onClick={() => setProfileOpen(false)}
@@ -179,6 +190,17 @@ export default function Header() {
 
           {user ? (
             <>
+              {user.role === "admin" && (
+                <NavLink
+                  to="/admin"
+                  onClick={() => setOpen(false)}
+                  className="bg-slate-800 text-white font-semibold font-text px-4 py-2 rounded-xl text-center flex items-center justify-center gap-2"
+                >
+                  <ShieldAlert size={16} />
+                  Painel Admin
+                </NavLink>
+              )}
+
               <NavLink
                 to="/perfil"
                 onClick={() => setOpen(false)}
