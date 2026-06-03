@@ -104,13 +104,17 @@ export default function Dashboard() {
     return matchSearch && matchCategoria;
   });
 
+  const getFirstAndSecondName = (nomeCompleto) => {
+    return nomeCompleto.split(" ").slice(0, 2).join(" ");
+  };
+
   // limite de cards
   const visibleItems = showAll ? filtered : filtered.slice(0, 3);
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-[#F3F3F3] font-text">
       <h1 className="text-[32px] md:text-[45px] text-center md:text-left mb-6 font-semibold">
-        Bem-vindo <span className="text-primary font-bold">{nome}</span>
+        Bem-vindo <span className="text-primary font-bold">{getFirstAndSecondName(user.nome)}</span>
       </h1>
 
       {/* Mapa */}

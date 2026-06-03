@@ -9,11 +9,7 @@ import {
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-import {
-  getUser,
-  updateUser,
-  deleteUser,
-} from "../services/api";
+import { getUser, updateUser, deleteUser } from "../services/api";
 import { getLoggedUser, setToken, logout } from "../utils/auth";
 
 export default function Perfil() {
@@ -87,12 +83,14 @@ export default function Perfil() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">
-          Carregando usuário...
-        </p>
+        <p className="text-gray-500">Carregando usuário...</p>
       </div>
     );
   }
+
+  const getFirstAndSecondName = (nomeCompleto) => {
+    return nomeCompleto.split(" ").slice(0, 2).join(" ");
+  };
 
   return (
     <div
@@ -117,12 +115,10 @@ export default function Perfil() {
                 className="text-2xl md:text-4xl font-semibold"
                 style={{ fontFamily: "var(--font-title)" }}
               >
-                {user.nome}
+                {getFirstAndSecondName(user.nome)}
               </h1>
 
-              <p className="text-sm opacity-90 mt-1">
-                Perfil do cidadão
-              </p>
+              <p className="text-sm opacity-90 mt-1">Perfil do cidadão</p>
 
               <div className="flex gap-3 mt-4 justify-center md:justify-start">
                 <button
@@ -147,9 +143,7 @@ export default function Perfil() {
 
         {/* DADOS */}
         <div className="bg-white rounded-2xl p-5 shadow-sm mt-6">
-          <h2 className="text-lg font-semibold mb-5">
-            Informações pessoais
-          </h2>
+          <h2 className="text-lg font-semibold mb-5">Informações pessoais</h2>
 
           <div className="grid md:grid-cols-2 gap-5">
             {/* NOME */}
@@ -160,9 +154,7 @@ export default function Perfil() {
 
               <div>
                 <p className="text-xs text-gray-400">Nome</p>
-                <p className="text-sm font-medium">
-                  {user.nome}
-                </p>
+                <p className="text-sm font-medium">{user.nome}</p>
               </div>
             </div>
 
@@ -174,9 +166,7 @@ export default function Perfil() {
 
               <div>
                 <p className="text-xs text-gray-400">Email</p>
-                <p className="text-sm font-medium">
-                  {user.email}
-                </p>
+                <p className="text-sm font-medium">{user.email}</p>
               </div>
             </div>
 
@@ -187,13 +177,9 @@ export default function Perfil() {
               </div>
 
               <div>
-                <p className="text-xs text-gray-400">
-                  Tipo de conta
-                </p>
+                <p className="text-xs text-gray-400">Tipo de conta</p>
 
-                <p className="text-sm font-medium">
-                  Cidadão
-                </p>
+                <p className="text-sm font-medium">Cidadão</p>
               </div>
             </div>
 
@@ -204,13 +190,9 @@ export default function Perfil() {
               </div>
 
               <div>
-                <p className="text-xs text-gray-400">
-                  Conta criada em
-                </p>
+                <p className="text-xs text-gray-400">Conta criada em</p>
 
-                <p className="text-sm font-medium">
-                  Agora
-                </p>
+                <p className="text-sm font-medium">Agora</p>
               </div>
             </div>
           </div>
@@ -221,9 +203,7 @@ export default function Perfil() {
       {openEdit && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl w-full max-w-md p-5">
-            <h2 className="text-lg font-semibold mb-4">
-              Editar perfil
-            </h2>
+            <h2 className="text-lg font-semibold mb-4">Editar perfil</h2>
 
             <div className="flex flex-col gap-3">
               <input

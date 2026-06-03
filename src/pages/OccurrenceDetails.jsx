@@ -66,6 +66,12 @@ export default function OccurrenceDetails() {
     return author === `@${user.nome}`;
   };
 
+  const getShortName = (name) => {
+    if (!name) return "";
+
+    return name.split(" ").slice(0, 2).join(" ");
+  };
+
   // Busca dados da ocorrência
   useEffect(() => {
     const fetchOccurrence = async () => {
@@ -324,7 +330,7 @@ export default function OccurrenceDetails() {
               <p className="text-[13px] text-gray-600 mt-1 mb-4">
                 Ocorrência feita por{" "}
                 <span className="text-primary font-medium">
-                  @{occurrence.autor}
+                  @{getShortName(occurrence.autor)}
                 </span>
               </p>
 
@@ -358,8 +364,9 @@ export default function OccurrenceDetails() {
               <div className="flex items-center gap-6 mt-auto">
                 <button
                   onClick={handleLike}
-                  className={`flex items-center gap-1.5 text-base bg-transparent border-none cursor-pointer font-text ${liked ? "text-primary" : "text-gray-600"
-                    }`}
+                  className={`flex items-center gap-1.5 text-base bg-transparent border-none cursor-pointer font-text ${
+                    liked ? "text-primary" : "text-gray-600"
+                  }`}
                 >
                   <ThumbsUp
                     size={20}
@@ -394,7 +401,7 @@ export default function OccurrenceDetails() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <span className="text-[13px] font-semibold text-gray-900 block">
-                            {comment.autor}
+                            @{getShortName(comment.autor.replace("@", ""))}
                           </span>
 
                           <span className="text-[10px] text-gray-400">
@@ -483,20 +490,22 @@ export default function OccurrenceDetails() {
                           {comment.replies.map((reply) => (
                             <div
                               key={reply.id}
-                              className={`rounded-2xl p-3 ${reply.isAuthor
+                              className={`rounded-2xl p-3 ${
+                                reply.isAuthor
                                   ? "bg-[#EEF2FA] border border-primary/20"
                                   : "bg-white border border-gray-200"
-                                }`}
+                              }`}
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div>
                                   <span
-                                    className={`text-[12px] font-semibold block ${reply.isAuthor
+                                    className={`text-[12px] font-semibold block ${
+                                      reply.isAuthor
                                         ? "text-primary"
                                         : "text-gray-800"
-                                      }`}
+                                    }`}
                                   >
-                                    {reply.autor}
+                                    @{getShortName(reply.autor.replace("@", ""))}
                                   </span>
 
                                   <span className="text-[10px] text-gray-400">
