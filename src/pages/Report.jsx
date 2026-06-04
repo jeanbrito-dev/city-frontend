@@ -9,6 +9,7 @@ import {
 
 import { useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { getMarkerIcon } from "./Map";
 import "leaflet/dist/leaflet.css";
 import { createOccurrence } from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -434,7 +435,12 @@ export default function RelatarOcorrencia() {
                     }}
                   />
 
-                  {selectedPosition && <Marker position={selectedPosition} />}
+                  {selectedPosition && (
+                    <Marker
+                      position={selectedPosition}
+                      icon={getMarkerIcon(categoria)}
+                    />
+                  )}
                 </MapContainer>
 
                 {/* Dica flutuante */}

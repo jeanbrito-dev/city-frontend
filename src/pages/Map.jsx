@@ -15,7 +15,7 @@ export const getMarkerIcon = (categoria) => {
     color = "#4237E0"; // blue (primary)
   else if (categoria === "Segurança")
     color = "#FF0202"; // red
-  else if (categoria === "Limpeza")
+  else if (categoria === "Limpeza urbana")
     color = "#34C759"; // green
   else if (categoria === "Trânsito") color = "#ECBD02"; // yellow
 
