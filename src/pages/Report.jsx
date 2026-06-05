@@ -34,7 +34,6 @@ export default function RelatarOcorrencia() {
   const fileInputRef = useRef();
 
   const user = getLoggedUser();
-
   const navigate = useNavigate();
 
   const [titulo, setTitulo] = useState("");
@@ -42,7 +41,6 @@ export default function RelatarOcorrencia() {
   const [local, setLocal] = useState("");
 
   const [mapOpen, setMapOpen] = useState(false);
-
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   const [selectedCoords, setSelectedCoords] = useState({
@@ -51,7 +49,6 @@ export default function RelatarOcorrencia() {
   });
 
   const [loading, setLoading] = useState(false);
-
   const [warning, setWarning] = useState(false);
 
   const [successModal, setSuccessModal] = useState("");
@@ -98,7 +95,9 @@ export default function RelatarOcorrencia() {
   const getCoordinates = async (address) => {
     try {
       const res = await fetch(
-        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(address)}`,
+        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(
+          address,
+        )}`,
       );
 
       const data = await res.json();
@@ -183,6 +182,11 @@ export default function RelatarOcorrencia() {
       setCategoria("Ocorrência");
       setFileName("");
       setImagem(null);
+      setSelectedPosition(null);
+      setSelectedCoords({
+        latitude: null,
+        longitude: null,
+      });
     } catch (err) {
       console.error(err);
 
@@ -216,15 +220,17 @@ export default function RelatarOcorrencia() {
 
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setWarning(false)}
-                className="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl text-sm hover:bg-gray-200 transition"
+                className="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl text-sm hover:bg-gray-200 transition cursor-pointer"
               >
                 Cancelar
               </button>
 
               <button
+                type="button"
                 onClick={() => navigate("/login")}
-                className="flex-1 bg-primary text-white py-2 rounded-xl text-sm hover:opacity-90 transition"
+                className="flex-1 bg-primary text-white py-2 rounded-xl text-sm hover:opacity-90 transition cursor-pointer"
               >
                 Fazer login
               </button>
@@ -348,11 +354,12 @@ export default function RelatarOcorrencia() {
           <button
             type="button"
             onClick={() => setMapOpen(true)}
-            className="bg-primary hover:opacity-90 text-white px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition whitespace-nowrap"
+            className="bg-primary hover:opacity-90 text-white px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition whitespace-nowrap cursor-pointer"
           >
             Mapa
           </button>
         </div>
+
         {mapOpen && (
           <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 md:p-6">
             <div className="bg-white w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
@@ -371,8 +378,9 @@ export default function RelatarOcorrencia() {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => setMapOpen(false)}
-                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-500 transition"
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-500 transition cursor-pointer"
                   >
                     ✕
                   </button>
@@ -458,7 +466,7 @@ export default function RelatarOcorrencia() {
                   <button
                     type="button"
                     onClick={() => setMapOpen(false)}
-                    className="px-5 py-3 rounded-xl border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition"
+                    className="px-5 py-3 rounded-xl border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -467,7 +475,7 @@ export default function RelatarOcorrencia() {
                     type="button"
                     disabled={!selectedPosition}
                     onClick={() => setMapOpen(false)}
-                    className="px-5 py-3 rounded-xl bg-gradient text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition"
+                    className="px-5 py-3 rounded-xl bg-gradient text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition cursor-pointer"
                   >
                     Confirmar localização
                   </button>
@@ -477,39 +485,20 @@ export default function RelatarOcorrencia() {
           </div>
         )}
 
-        {/* MOBILE */}
-        <div className="block md:hidden mb-4">
-          <label className="text-[13px] font-medium mb-1 block">
-            URL da imagem <span className="text-gray-400">(Opcional)</span>
-          </label>
-
-          <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px]">
-            <ImageIcon size={14} />
-
-            <input
-              placeholder="https://exemplo.com/imagem.jpg"
-              className="flex-1 outline-none bg-transparent"
-            />
-          </div>
-
-          <p className="text-[10px] text-gray-400 mt-1">
-            Cole um link direto para uma imagem
-          </p>
-        </div>
-
-        {/* DESKTOP */}
-        <div className="hidden md:block mb-4">
-          <label className="text-[15px] font-medium mb-1 block">
+        {/* IMAGEM */}
+        <div className="mb-4">
+          <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
             Carregar imagem <span className="text-gray-400">(Opcional)</span>
           </label>
 
           <button
+            type="button"
             onClick={() => fileInputRef.current.click()}
-            className="bg-white rounded-[10px] px-3 py-2 text-[14px] flex items-center gap-2"
+            className="w-full bg-white rounded-[10px] px-3 py-3 text-[13px] md:text-[14px] flex items-center gap-2 border border-gray-200 cursor-pointer hover:bg-gray-50 transition"
           >
-            <ImageIcon size={14} />
+            <ImageIcon size={16} />
 
-            {fileName || "Escolher arquivo"}
+            <span className="truncate">{fileName || "Selecionar imagem"}</span>
           </button>
 
           <input
@@ -519,6 +508,10 @@ export default function RelatarOcorrencia() {
             onChange={handleFile}
             className="hidden"
           />
+
+          <p className="text-[10px] md:text-xs text-gray-400 mt-1">
+            JPG, JPEG ou PNG
+          </p>
         </div>
 
         {/* AVISO */}
@@ -534,9 +527,10 @@ export default function RelatarOcorrencia() {
         {/* BOTÃO */}
         <div className="flex justify-center">
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95 disabled:opacity-50"
+            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Enviando..." : "Publicar Ocorrência"}
 
