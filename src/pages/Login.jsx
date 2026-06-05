@@ -59,7 +59,7 @@ export default function Login() {
         </div>
 
         <button
-          type="submit" className="bg-gradient text-white py-3 rounded-xl font-medium cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95">Entrar</button>
+          type="submit" className="mt-4 bg-gradient text-white py-3 rounded-full font-medium cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:scale-95">Entrar</button>
       </form>
 
       <p className="text-sm text-center mt-6">
