@@ -58,14 +58,13 @@ export default function Login() {
           />
         </div>
 
-        <button className="mt-4 bg-blue-500 text-white py-2 rounded-full">
-          Entrar
-        </button>
+        <button
+          type="submit" className="bg-gradient text-white py-3 rounded-xl font-medium cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95">Entrar</button>
       </form>
 
       <p className="text-sm text-center mt-6">
         Ainda não tem uma conta?{" "}
-        <Link to="/cadastro" className="text-blue-600">
+        <Link to="/cadastro" className="text-blue-600 hover:underline font-medium">
           Registrar-se
         </Link>
       </p>

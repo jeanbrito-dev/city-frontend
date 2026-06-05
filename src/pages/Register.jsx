@@ -10,7 +10,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const inputStyle =
-    "w-full mt-1 px-4 py-1.5 md:py-2 border border-gray-400 rounded-full outline-none";
+    "w-full mt-1 px-4 py-2 border border-gray-400 rounded-full outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -93,14 +93,14 @@ export default function Register() {
           />
         </div>
 
-        <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full transition">
+        <button className="mt-4 bg-gradient text-white py-3 rounded-full font-medium cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:scale-95">
           Criar conta
         </button>
       </form>
 
       <p className="text-sm text-center mt-4 md:mt-6">
         Já tem uma conta?{" "}
-        <Link to="/login" className="text-blue-600 cursor-pointer">
+        <Link to="/login" className="text-blue-600 cursor-pointer hover:underline font-medium">
           Fazer login
         </Link>
       </p>
