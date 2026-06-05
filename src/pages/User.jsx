@@ -92,6 +92,9 @@ export default function Perfil() {
     return nomeCompleto.split(" ").slice(0, 2).join(" ");
   };
 
+  const accountType =
+    user?.role === "admin" ? "Administrador" : "Cidadão";
+
   return (
     <div
       className="min-h-screen p-4 md:p-8"
@@ -118,7 +121,9 @@ export default function Perfil() {
                 {getFirstAndSecondName(user.nome)}
               </h1>
 
-              <p className="text-sm opacity-90 mt-1">Perfil do cidadão</p>
+              <p className="text-sm opacity-90 mt-1">
+                Perfil do {accountType.toLowerCase()}
+              </p>
 
               <div className="flex gap-3 mt-4 justify-center md:justify-start">
                 <button
@@ -179,7 +184,9 @@ export default function Perfil() {
               <div>
                 <p className="text-xs text-gray-400">Tipo de conta</p>
 
-                <p className="text-sm font-medium">Cidadão</p>
+                <p className="text-sm font-medium">
+                  {accountType}
+                </p>
               </div>
             </div>
 
