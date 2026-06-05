@@ -15,15 +15,13 @@ export default function Header() {
   const navigate = useNavigate();
 
   const navLinkClass = ({ isActive }) =>
-    `pb-1 transition ${
-      isActive
-        ? "border-b-2 border-primary"
-        : "hover:text-primary"
+    `pb-1 transition cursor-pointer ${
+      isActive ? "border-b-2 border-primary" : "hover:text-primary"
     } ${isHome ? "lg:text-white lg:hover:text-white/80" : ""}`;
 
   const navLinkMobile = ({ isActive }) =>
-    `border-b border-gray-300 pb-2 text-center transition ${
-      isActive ? "text-primary font-semibold" : ""
+    `border-b border-gray-300 pb-2 text-center transition cursor-pointer ${
+      isActive ? "text-primary font-semibold" : "hover:text-primary"
     }`;
 
   const handleLogout = () => {
@@ -47,7 +45,7 @@ export default function Header() {
         {/* Logo */}
         <NavLink
           to={user ? "/dashboard" : "/"}
-          className={`flex items-center gap-2 ${
+          className={`flex items-center gap-2 cursor-pointer transition-all duration-200 hover:scale-105 ${
             isHome ? "lg:text-white" : ""
           }`}
         >
@@ -67,10 +65,7 @@ export default function Header() {
 
         {/* Menu desktop */}
         <nav className="hidden md:flex gap-6 absolute left-1/2 -translate-x-1/2">
-          <NavLink
-            to={user ? "/dashboard" : "/"}
-            className={navLinkClass}
-          >
+          <NavLink to={user ? "/dashboard" : "/"} className={navLinkClass}>
             {user ? "Dashboard" : "Home"}
           </NavLink>
 
@@ -88,21 +83,60 @@ export default function Header() {
           {user ? (
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-2 bg-primary text-white font-bold font-text px-4 py-2 rounded-xl"
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  bg-primary
+                  text-white
+                  font-bold
+                  font-text
+                  px-4
+                  py-2
+                  rounded-xl
+                  cursor-pointer
+                  transition-all
+                  duration-300
+                  hover:scale-105
+                  hover:shadow-xl
+                  hover:brightness-110
+                  active:scale-95
+                "
               >
                 <User size={16} />
                 {getFirstAndSecondName(user.nome)}
-                <ChevronDown size={16} />
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform duration-300 ${
+                    profileOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-fade-in">
                   {user.role === "admin" && (
                     <NavLink
                       to="/admin"
                       onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 transition text-primary font-semibold border-b border-gray-100"
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        px-4
+                        py-3
+                        text-sm
+                        text-primary
+                        font-semibold
+                        border-b
+                        border-gray-100
+                        cursor-pointer
+                        transition-all
+                        duration-200
+                        hover:bg-primary/10
+                      "
                     >
                       <ShieldAlert size={16} />
                       Painel Admin
@@ -112,15 +146,42 @@ export default function Header() {
                   <NavLink
                     to="/perfil"
                     onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 transition"
+                    className="
+                      flex
+                      items-center
+                      gap-2
+                      px-4
+                      py-3
+                      text-sm
+                      cursor-pointer
+                      transition-all
+                      duration-200
+                      hover:bg-gray-100
+                      hover:pl-5
+                    "
                   >
                     <User size={16} />
                     Minha conta
                   </NavLink>
 
                   <button
+                    type="button"
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-danger hover:bg-gray-100 transition"
+                    className="
+                      w-full
+                      flex
+                      items-center
+                      gap-2
+                      px-4
+                      py-3
+                      text-sm
+                      text-danger
+                      cursor-pointer
+                      transition-all
+                      duration-200
+                      hover:bg-red-50
+                      hover:pl-5
+                    "
                   >
                     <LogOut size={16} />
                     Logout
@@ -132,7 +193,7 @@ export default function Header() {
             <>
               <NavLink
                 to="/login"
-                className={`px-4 py-2 rounded-xl ${
+                className={`px-4 py-2 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${
                   isHome
                     ? "lg:text-white lg:border-tertiary text-primary border border-gray-400"
                     : "text-primary border border-gray-400"
@@ -143,7 +204,7 @@ export default function Header() {
 
               <NavLink
                 to="/cadastro"
-                className="bg-primary text-white px-4 py-2 rounded-xl"
+                className="bg-primary text-white px-4 py-2 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 Cadastrar-se
               </NavLink>
@@ -152,7 +213,11 @@ export default function Header() {
         </div>
 
         {/* Mobile button */}
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        <button
+          type="button"
+          className="md:hidden cursor-pointer transition-all duration-200 active:scale-90"
+          onClick={() => setOpen(!open)}
+        >
           {open ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -194,7 +259,7 @@ export default function Header() {
                 <NavLink
                   to="/admin"
                   onClick={() => setOpen(false)}
-                  className="bg-slate-800 text-white font-semibold font-text px-4 py-2 rounded-xl text-center flex items-center justify-center gap-2"
+                  className="bg-slate-800 text-white font-semibold font-text px-4 py-2 rounded-xl text-center flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
                 >
                   <ShieldAlert size={16} />
                   Painel Admin
@@ -204,14 +269,15 @@ export default function Header() {
               <NavLink
                 to="/perfil"
                 onClick={() => setOpen(false)}
-                className="bg-primary text-white font-semibold font-text px-4 py-2 rounded-xl text-center"
+                className="bg-primary text-white font-semibold font-text px-4 py-2 rounded-xl text-center cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
               >
                 Minha conta
               </NavLink>
 
               <button
+                type="button"
                 onClick={handleLogout}
-                className="bg-danger text-white px-4 py-2 rounded-xl text-center"
+                className="bg-danger text-white px-4 py-2 rounded-xl text-center cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
               >
                 Logout
               </button>
@@ -221,7 +287,7 @@ export default function Header() {
               <NavLink
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="text-primary border border-gray-400 px-4 py-2 rounded-xl mt-4 text-center"
+                className="text-primary border border-gray-400 px-4 py-2 rounded-xl mt-4 text-center cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95"
               >
                 Login
               </NavLink>
@@ -229,7 +295,7 @@ export default function Header() {
               <NavLink
                 to="/cadastro"
                 onClick={() => setOpen(false)}
-                className="bg-primary text-white px-4 py-2 rounded-xl text-center"
+                className="bg-primary text-white px-4 py-2 rounded-xl text-center cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
               >
                 Registrar
               </NavLink>
