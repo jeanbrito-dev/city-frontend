@@ -28,7 +28,7 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <div className="w-full h-full bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800 shadow-xl overflow-hidden">
+    <div className="w-full h-full max-h-screen bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800 shadow-xl overflow-hidden">
       {/* Header / Logo */}
       <div className="p-5 md:p-6 border-b border-slate-800/60 flex items-center gap-3 shrink-0">
         <div className="bg-primary/20 p-2 rounded-xl border border-primary/40 shrink-0">
@@ -47,7 +47,7 @@ export default function AdminSidebar() {
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-4 py-5 md:py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 py-5 md:py-6 space-y-1.5 overflow-y-auto custom-scrollbar min-h-0">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -68,7 +68,7 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Footer Section */}
-      <div className="p-4 border-t border-slate-800/60 bg-slate-950/40 flex flex-col gap-2 shrink-0">
+      <div className="p-3 md:p-4 border-t border-slate-800/60 bg-slate-950/40 flex flex-col gap-2 shrink-0">
         {/* Profile Card */}
         <div className="flex items-center gap-3 px-2 py-1.5 mb-2 min-w-0">
           <div className="size-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-primary font-bold text-sm shrink-0">
