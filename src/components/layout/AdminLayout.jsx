@@ -86,7 +86,7 @@ export default function AdminLayout() {
         className={`
           fixed md:sticky md:top-0
           left-0 top-0 z-50
-          h-screen w-[260px]
+          h-[100dvh] w-[260px] overflow-y-auto
           bg-slate-950
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
