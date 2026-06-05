@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet, Link } from "react-router-dom";
 import { ShieldAlert, ArrowLeft, Menu, X } from "lucide-react";
-import AdminSidebar from "../components/admin/AdminSidebar";
-import { getLoggedUser } from "../utils/auth";
+import AdminSidebar from "../admin/AdminSidebar";
+import { getLoggedUser } from "../../utils/auth";
 
 export default function AdminLayout() {
   const [user, setUser] = useState(null);
