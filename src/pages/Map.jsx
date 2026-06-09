@@ -19,6 +19,7 @@ export const getMarkerIcon = (categoria) => {
   else if (categoria === "Infraestrutura")
     color = "#4237E0"; // azul
   else if (categoria === "Segurança")
+<<<<<<< HEAD
     color = "#FF0202"; // vermelho forte
   else if (categoria === "Limpeza Urbana")
     color = "#34C759"; // verde
@@ -31,6 +32,12 @@ export const getMarkerIcon = (categoria) => {
   else if (categoria === "Meio Ambiente")
     color = "#2ECC71"; // verde escuro
   else if (categoria === "Sugestão") color = "#F39C12"; // laranja
+=======
+    color = "#FF0202"; // red
+  else if (categoria === "Limpeza urbana")
+    color = "#34C759"; // green
+  else if (categoria === "Trânsito") color = "#ECBD02"; // yellow
+>>>>>>> 4e06b8df617ac1b3b935634d83dc15ebc0d24268
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="32" height="48">
     <path fill="${color}" d="M12 0C5.373 0 0 5.373 0 12c0 7.252 11.083 23.013 11.536 23.666.24.346.732.346.972 0C12.963 35.013 24 19.252 24 12c0-6.627-5.373-12-12-12zm0 17.5c-3.038 0-5.5-2.462-5.5-5.5S8.962 6.5 12 6.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"/>

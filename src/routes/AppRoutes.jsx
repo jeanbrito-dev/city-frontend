@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
 import AuthLayout from "../components/layout/AuthLayout";
-import AdminLayout from "../layouts/AdminLayout";
+import AdminLayout from "../components/layout/AdminLayout";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -50,4 +50,4 @@ export default function AppRoutes() {
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
+}

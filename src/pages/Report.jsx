@@ -8,9 +8,22 @@ import {
 } from "lucide-react";
 
 import { useState, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { getMarkerIcon } from "./Map";
+import "leaflet/dist/leaflet.css";
 import { createOccurrence } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { getLoggedUser } from "../utils/auth";
+
+function LocationPicker({ onSelect }) {
+  useMapEvents({
+    click(e) {
+      onSelect(e.latlng);
+    },
+  });
+
+  return null;
+}
 
 export default function RelatarOcorrencia() {
   const [categoria, setCategoria] = useState("Ocorrência");
@@ -21,15 +34,21 @@ export default function RelatarOcorrencia() {
   const fileInputRef = useRef();
 
   const user = getLoggedUser();
-
   const navigate = useNavigate();
 
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [local, setLocal] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState(null);
 
+  const [selectedCoords, setSelectedCoords] = useState({
+    latitude: null,
+    longitude: null,
+  });
+
+  const [loading, setLoading] = useState(false);
   const [warning, setWarning] = useState(false);
 
   const [successModal, setSuccessModal] = useState("");
@@ -76,7 +95,9 @@ export default function RelatarOcorrencia() {
   const getCoordinates = async (address) => {
     try {
       const res = await fetch(
-        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(address)}`
+        `https://city-backend-production.up.railway.app/geocode/search?q=${encodeURIComponent(
+          address,
+        )}`,
       );
 
       const data = await res.json();
@@ -94,6 +115,21 @@ export default function RelatarOcorrencia() {
     }
   };
 
+  const getAddressFromCoords = async (lat, lon) => {
+    try {
+      const res = await fetch(
+        `https://city-backend-production.up.railway.app/geocode/reverse?lat=${lat}&lon=${lon}`,
+      );
+
+      const data = await res.json();
+
+      return data.endereco || "";
+    } catch (err) {
+      console.error(err);
+      return "";
+    }
+  };
+
   const handleSubmit = async () => {
     if (!titulo || !descricao || !local) {
       showError("Preencha todos os campos obrigatórios");
@@ -108,11 +144,17 @@ export default function RelatarOcorrencia() {
     try {
       setLoading(true);
 
-      const coords = await getCoordinates(local);
+      let coords;
 
-      if (!coords) {
-        showError("Endereço não encontrado. Seja mais específico.");
-        return;
+      if (selectedCoords.latitude && selectedCoords.longitude) {
+        coords = selectedCoords;
+      } else {
+        coords = await getCoordinates(local);
+
+        if (!coords) {
+          showError("Endereço não encontrado. Seja mais específico.");
+          return;
+        }
       }
 
       const formData = new FormData();
@@ -140,6 +182,11 @@ export default function RelatarOcorrencia() {
       setCategoria("Ocorrência");
       setFileName("");
       setImagem(null);
+      setSelectedPosition(null);
+      setSelectedCoords({
+        latitude: null,
+        longitude: null,
+      });
     } catch (err) {
       console.error(err);
 
@@ -173,15 +220,17 @@ export default function RelatarOcorrencia() {
 
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setWarning(false)}
-                className="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl text-sm hover:bg-gray-200 transition"
+                className="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl text-sm hover:bg-gray-200 transition cursor-pointer"
               >
                 Cancelar
               </button>
 
               <button
+                type="button"
                 onClick={() => navigate("/login")}
-                className="flex-1 bg-primary text-white py-2 rounded-xl text-sm hover:opacity-90 transition"
+                className="flex-1 bg-primary text-white py-2 rounded-xl text-sm hover:opacity-90 transition cursor-pointer"
               >
                 Fazer login
               </button>
@@ -292,50 +341,164 @@ export default function RelatarOcorrencia() {
           Localização
         </label>
 
-        <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px] md:text-[14px] mb-4">
-          <MapPin size={14} />
+        <div className="bg-white rounded-[12px] px-3 py-2 flex items-center gap-2 mb-4 shadow-sm">
+          <MapPin size={16} className="text-gray-400 flex-shrink-0" />
 
           <input
             value={local}
             onChange={(e) => setLocal(e.target.value)}
             placeholder="Rua, Bairro ou Ponto de Referência"
-            className="flex-1 outline-none bg-transparent text-gray-600"
+            className="flex-1 outline-none bg-transparent text-gray-600 text-[13px] md:text-[14px]"
           />
+
+          <button
+            type="button"
+            onClick={() => setMapOpen(true)}
+            className="bg-primary hover:opacity-90 text-white px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition whitespace-nowrap cursor-pointer"
+          >
+            Mapa
+          </button>
         </div>
 
-        {/* MOBILE */}
-        <div className="block md:hidden mb-4">
-          <label className="text-[13px] font-medium mb-1 block">
-            URL da imagem <span className="text-gray-400">(Opcional)</span>
-          </label>
+        {mapOpen && (
+          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 md:p-6">
+            <div className="bg-white w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+              {/* Header */}
+              <div className="px-5 md:px-7 py-5 border-b bg-gradient-to-r from-primary/10 to-primary/5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="font-title text-xl md:text-2xl font-bold text-gray-900">
+                      Selecionar localização
+                    </h2>
 
-          <div className="bg-white rounded-[10px] px-3 py-2 flex items-center gap-2 text-gray-400 text-[12px]">
-            <ImageIcon size={14} />
+                    <p className="text-sm text-gray-500 mt-1">
+                      Clique no mapa para marcar exatamente onde ocorreu o
+                      problema.
+                    </p>
+                  </div>
 
-            <input
-              placeholder="https://exemplo.com/imagem.jpg"
-              className="flex-1 outline-none bg-transparent"
-            />
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(false)}
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-500 transition cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Coordenadas */}
+              {selectedCoords.latitude && (
+                <div className="px-5 md:px-7 py-3 bg-gray-50 border-b">
+                  <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-xs md:text-sm">
+                    <span>
+                      <strong>Latitude:</strong>{" "}
+                      {selectedCoords.latitude.toFixed(6)}
+                    </span>
+
+                    <span>
+                      <strong>Longitude:</strong>{" "}
+                      {selectedCoords.longitude.toFixed(6)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Mapa */}
+              <div className="flex-1 relative">
+                <MapContainer
+                  center={[-23.6205, -45.4132]}
+                  zoom={13}
+                  className="h-full w-full"
+                >
+                  <TileLayer
+                    attribution="&copy; Stadia Maps &copy; OpenStreetMap contributors"
+                    url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+                  />
+
+                  <LocationPicker
+                    onSelect={async (pos) => {
+                      setSelectedPosition(pos);
+
+                      setSelectedCoords({
+                        latitude: pos.lat,
+                        longitude: pos.lng,
+                      });
+
+                      try {
+                        const endereco = await getAddressFromCoords(
+                          pos.lat,
+                          pos.lng,
+                        );
+
+                        setLocal(
+                          endereco ||
+                            `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`,
+                        );
+                      } catch {
+                        setLocal(
+                          `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`,
+                        );
+                      }
+                    }}
+                  />
+
+                  {selectedPosition && (
+                    <Marker
+                      position={selectedPosition}
+                      icon={getMarkerIcon(categoria)}
+                    />
+                  )}
+                </MapContainer>
+
+                {/* Dica flutuante */}
+                <div className="absolute top-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-gray-200 max-w-[250px]">
+                  <p className="text-xs md:text-sm text-gray-600">
+                    📍 Clique em qualquer ponto do mapa para selecionar a
+                    localização.
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="border-t bg-white p-4 md:p-5">
+                <div className="flex flex-col-reverse md:flex-row justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(false)}
+                    className="px-5 py-3 rounded-xl border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!selectedPosition}
+                    onClick={() => setMapOpen(false)}
+                    className="px-5 py-3 rounded-xl bg-gradient text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition cursor-pointer"
+                  >
+                    Confirmar localização
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+        )}
 
-          <p className="text-[10px] text-gray-400 mt-1">
-            Cole um link direto para uma imagem
-          </p>
-        </div>
-
-        {/* DESKTOP */}
-        <div className="hidden md:block mb-4">
-          <label className="text-[15px] font-medium mb-1 block">
+        {/* IMAGEM */}
+        <div className="mb-4">
+          <label className="text-[13px] md:text-[15px] font-medium mb-1 block">
             Carregar imagem <span className="text-gray-400">(Opcional)</span>
           </label>
 
           <button
+            type="button"
             onClick={() => fileInputRef.current.click()}
-            className="bg-white rounded-[10px] px-3 py-2 text-[14px] flex items-center gap-2"
+            className="w-full bg-white rounded-[10px] px-3 py-3 text-[13px] md:text-[14px] flex items-center gap-2 border border-gray-200 cursor-pointer hover:bg-gray-50 transition"
           >
-            <ImageIcon size={14} />
+            <ImageIcon size={16} />
 
-            {fileName || "Escolher arquivo"}
+            <span className="truncate">{fileName || "Selecionar imagem"}</span>
           </button>
 
           <input
@@ -345,6 +508,10 @@ export default function RelatarOcorrencia() {
             onChange={handleFile}
             className="hidden"
           />
+
+          <p className="text-[10px] md:text-xs text-gray-400 mt-1">
+            JPG, JPEG ou PNG
+          </p>
         </div>
 
         {/* AVISO */}
@@ -360,9 +527,10 @@ export default function RelatarOcorrencia() {
         {/* BOTÃO */}
         <div className="flex justify-center">
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95 disabled:opacity-50"
+            className="bg-gradient text-white px-6 py-2 md:px-8 md:py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium flex items-center gap-2 cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-90 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Enviando..." : "Publicar Ocorrência"}
 
