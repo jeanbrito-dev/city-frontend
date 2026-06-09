@@ -2,19 +2,33 @@ import { NavLink } from "react-router-dom";
 import { MapPin, ArrowRight } from "lucide-react";
 
 const getCategoryColor = (categoria) => {
+  if (categoria === "Ocorrência") return "text-[#E74C3C]";
+  if (categoria === "Evento") return "text-[#9B59B6]";
   if (categoria === "Infraestrutura") return "text-[#4237E0]";
   if (categoria === "Segurança") return "text-[#FF0202]";
-  if (categoria === "Limpeza") return "text-[#34C759]";
+  if (categoria === "Limpeza Urbana") return "text-[#34C759]";
+  if (categoria === "Iluminação Pública") return "text-[#00B8D9]";
   if (categoria === "Trânsito") return "text-[#ECBD02]";
-  return "text-[#888888]";
+  if (categoria === "Saúde Pública") return "text-[#FF6B6B]";
+  if (categoria === "Meio Ambiente") return "text-[#2ECC71]";
+  if (categoria === "Sugestão") return "text-[#F39C12]";
+
+  return "text-[#607D8B]"; // Não definido
 };
 
 const getCategoryBg = (categoria) => {
+  if (categoria === "Ocorrência") return "bg-[#E74C3C]";
+  if (categoria === "Evento") return "bg-[#9B59B6]";
   if (categoria === "Infraestrutura") return "bg-[#4237E0]";
   if (categoria === "Segurança") return "bg-[#FF0202]";
-  if (categoria === "Limpeza") return "bg-[#34C759]";
+  if (categoria === "Limpeza Urbana") return "bg-[#34C759]";
+  if (categoria === "Iluminação Pública") return "bg-[#00B8D9]";
   if (categoria === "Trânsito") return "bg-[#ECBD02]";
-  return "bg-[#888888]";
+  if (categoria === "Saúde Pública") return "bg-[#FF6B6B]";
+  if (categoria === "Meio Ambiente") return "bg-[#2ECC71]";
+  if (categoria === "Sugestão") return "bg-[#F39C12]";
+
+  return "bg-[#607D8B]"; // Não definido
 };
 
 const getStatusClasses = (status) => {

@@ -10,14 +10,27 @@ import { getOccurrences } from "../services/api";
 import MapPopup from "../components/MapPopup";
 
 export const getMarkerIcon = (categoria) => {
-  let color = "#888888"; // Outros
-  if (categoria === "Infraestrutura")
-    color = "#4237E0"; // blue (primary)
+  let color = "#607D8B"; // Não definido
+
+  if (categoria === "Ocorrência")
+    color = "#E74C3C"; // vermelho
+  else if (categoria === "Evento")
+    color = "#9B59B6"; // roxo
+  else if (categoria === "Infraestrutura")
+    color = "#4237E0"; // azul
   else if (categoria === "Segurança")
-    color = "#FF0202"; // red
-  else if (categoria === "Limpeza")
-    color = "#34C759"; // green
-  else if (categoria === "Trânsito") color = "#ECBD02"; // yellow
+    color = "#FF0202"; // vermelho forte
+  else if (categoria === "Limpeza Urbana")
+    color = "#34C759"; // verde
+  else if (categoria === "Iluminação Pública")
+    color = "#00B8D9"; // azul claro
+  else if (categoria === "Trânsito")
+    color = "#ECBD02"; // amarelo
+  else if (categoria === "Saúde Pública")
+    color = "#FF6B6B"; // rosa
+  else if (categoria === "Meio Ambiente")
+    color = "#2ECC71"; // verde escuro
+  else if (categoria === "Sugestão") color = "#F39C12"; // laranja
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="32" height="48">
     <path fill="${color}" d="M12 0C5.373 0 0 5.373 0 12c0 7.252 11.083 23.013 11.536 23.666.24.346.732.346.972 0C12.963 35.013 24 19.252 24 12c0-6.627-5.373-12-12-12zm0 17.5c-3.038 0-5.5-2.462-5.5-5.5S8.962 6.5 12 6.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"/>
@@ -32,6 +45,16 @@ export const getMarkerIcon = (categoria) => {
   });
 };
 
+const LegendItem = ({ color, label }) => (
+  <div className="flex items-center gap-2">
+    <div
+      className="w-3 h-3 rounded-full"
+      style={{ backgroundColor: color }}
+    />
+    <span>{label}</span>
+  </div>
+);
+
 export default function Dashboard() {
   const user = getLoggedUser();
   const nome = user?.nome || "Usuário";
@@ -39,6 +62,7 @@ export default function Dashboard() {
   const [data, setData] = useState([]);
   const [formatted, setFormatted] = useState([]);
   const [search, setSearch] = useState("");
+  const [showLegendModal, setShowLegendModal] = useState(false);
 
   const [showAll, setShowAll] = useState(false);
 
@@ -144,26 +168,40 @@ export default function Dashboard() {
 
         {/* Legend */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm w-full lg:w-auto min-w-[300px]">
-          <p className="text-sm font-bold mb-3 text-gray-800">Legenda:</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-bold text-gray-800">Legenda:</p>
+
+            <button
+              onClick={() => setShowLegendModal(true)}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Ver todas
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6 text-xs text-gray-600 font-medium">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#4237E0]"></div>
               <span>Infraestrutura</span>
             </div>
+
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#FF0202]"></div>
               <span>Segurança</span>
             </div>
+
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#34C759]"></div>
               <span>Limpeza</span>
             </div>
+
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#ECBD02]"></div>
               <span>Trânsito</span>
             </div>
+
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#888888]"></div>
+              <div className="w-3 h-3 rounded-full bg-[#607D8B]"></div>
               <span>Outros</span>
             </div>
           </div>
@@ -296,6 +334,39 @@ export default function Dashboard() {
           </div>
         )}
       </section>
+
+      {showLegendModal && (
+        <div className="fixed inset-0 z-9999 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-800">
+                Legenda completa
+              </h2>
+
+              <button
+                onClick={() => setShowLegendModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <LegendItem color="#E74C3C" label="Ocorrência" />
+              <LegendItem color="#9B59B6" label="Evento" />
+              <LegendItem color="#4237E0" label="Infraestrutura" />
+              <LegendItem color="#FF0202" label="Segurança" />
+              <LegendItem color="#34C759" label="Limpeza Urbana" />
+              <LegendItem color="#00B8D9" label="Iluminação Pública" />
+              <LegendItem color="#ECBD02" label="Trânsito" />
+              <LegendItem color="#FF6B6B" label="Saúde Pública" />
+              <LegendItem color="#2ECC71" label="Meio Ambiente" />
+              <LegendItem color="#F39C12" label="Sugestão" />
+              <LegendItem color="#607D8B" label="Não definido" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
