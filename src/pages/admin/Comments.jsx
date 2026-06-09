@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Search, Filter, AlertTriangle, MessageCircle, X } from "lucide-react";
-import { getAdminOccurrences, getComments, deleteComment, deleteReply } from "../../services/api";
+import {
+  getAdminOccurrences,
+  getComments,
+  deleteAdminComment,
+  deleteAdminReply,
+} from "../../services/api";
 import AdminTable from "../../components/admin/AdminTable";
 
 export default function Comments() {
@@ -65,7 +70,7 @@ export default function Comments() {
     const { type, commentId, replyId, occurrenceId } = confirmDelete;
     try {
       if (type === "comment") {
-        await deleteComment(occurrenceId, commentId);
+        await deleteAdminComment(commentId);
         
         // Update local state
         setComments((prev) => prev.filter((c) => c.id !== commentId));
@@ -75,7 +80,7 @@ export default function Comments() {
           setActiveRepliesModal({ open: false, comment: null });
         }
       } else if (type === "reply") {
-        await deleteReply(occurrenceId, commentId, replyId);
+        await deleteAdminReply(replyId);
         
         // Update replies in local state
         setComments((prev) =>

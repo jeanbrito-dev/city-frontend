@@ -299,3 +299,32 @@ export const deleteAdminOccurrence = async (id) => {
   return res.json();
 };
 
+export const deleteAdminComment = async (commentId) => {
+  const res = await apiFetch(
+    `${BASE_URL}/auth/admin/comments/${commentId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar comentário pelo painel admin");
+  }
+
+  return res.json();
+};
+
+export const deleteAdminReply = async (replyId) => {
+  const res = await apiFetch(
+    `${BASE_URL}/auth/admin/comments/replies/${replyId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar resposta pelo painel admin");
+  }
+
+  return res.json();
+};
